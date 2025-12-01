@@ -1,0 +1,16 @@
+services:
+  pg:
+    image: postgres:latest
+    container_name: vizen-pg
+    restart: "unless-stopped"
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: vizen
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - vizen_data:/var/lib/postgres
+
+volumes:
+  vizen_data:
