@@ -11,3 +11,9 @@ VALUES (
   $3,
   $4
 );
+
+-- name: GetCondominiumById :one
+SELECT
+*
+FROM condominiums
+WHERE id = $1;

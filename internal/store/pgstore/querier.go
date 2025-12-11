@@ -6,10 +6,16 @@ package pgstore
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
+	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) error
+	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
+	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

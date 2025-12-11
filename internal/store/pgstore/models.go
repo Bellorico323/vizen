@@ -5,37 +5,83 @@
 package pgstore
 
 import (
+	"net/netip"
+	"time"
+
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Account struct {
+	ID                    uuid.UUID  `json:"id"`
+	UserID                uuid.UUID  `json:"user_id"`
+	ProviderAccountID     string     `json:"provider_account_id"`
+	ProviderID            string     `json:"provider_id"`
+	PasswordHash          []byte     `json:"password_hash"`
+	AccessToken           *string    `json:"access_token"`
+	RefreshToken          *string    `json:"refresh_token"`
+	AccessTokenExpiresAt  *int64     `json:"access_token_expires_at"`
+	RefreshTokenExpiresAt *int64     `json:"refresh_token_expires_at"`
+	Scope                 *string    `json:"scope"`
+	IDToken               *string    `json:"id_token"`
+	CreatedAt             time.Time  `json:"created_at"`
+	UpdatedAt             *time.Time `json:"updated_at"`
+}
+
 type Apartment struct {
-	ID            uuid.UUID          `json:"id"`
-	CondominiumID uuid.UUID          `json:"condominium_id"`
-	Block         pgtype.Text        `json:"block"`
-	Number        string             `json:"number"`
-	CreatedAt     pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	Block         *string    `json:"block"`
+	Number        string     `json:"number"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
 }
 
 type Condominium struct {
-	ID        uuid.UUID          `json:"id"`
-	Name      string             `json:"name"`
-	Cnpj      string             `json:"cnpj"`
-	Address   string             `json:"address"`
-	PlanType  string             `json:"plan_type"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID        uuid.UUID  `json:"id"`
+	Name      string     `json:"name"`
+	Cnpj      string     `json:"cnpj"`
+	Address   string     `json:"address"`
+	PlanType  string     `json:"plan_type"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
+
+type Resident struct {
+	ID            uuid.UUID `json:"id"`
+	UserID        uuid.UUID `json:"user_id"`
+	ApartmentID   uuid.UUID `json:"apartment_id"`
+	Type          string    `json:"type"`
+	IsResponsible bool      `json:"is_responsible"`
+	CreatedAt     time.Time `json:"created_at"`
+}
+
+type Session struct {
+	ID        uuid.UUID   `json:"id"`
+	UserID    uuid.UUID   `json:"user_id"`
+	Token     string      `json:"token"`
+	ExpiresAt time.Time   `json:"expires_at"`
+	IpAddress *netip.Addr `json:"ip_address"`
+	UserAgent *string     `json:"user_agent"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt *time.Time  `json:"updated_at"`
 }
 
 type User struct {
-	ID            uuid.UUID          `json:"id"`
-	CondominiumID uuid.UUID          `json:"condominium_id"`
-	Role          string             `json:"role"`
-	Name          string             `json:"name"`
-	AvatarUrl     pgtype.Text        `json:"avatar_url"`
-	Email         string             `json:"email"`
-	PasswordHash  []byte             `json:"password_hash"`
-	CreatedAt     pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	ID            uuid.UUID  `json:"id"`
+	Role          string     `json:"role"`
+	Name          string     `json:"name"`
+	AvatarUrl     *string    `json:"avatar_url"`
+	Email         string     `json:"email"`
+	EmailVerified *time.Time `json:"email_verified"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+}
+
+type Verification struct {
+	ID         uuid.UUID  `json:"id"`
+	Identifier string     `json:"identifier"`
+	Value      string     `json:"value"`
+	ExpiresAt  time.Time  `json:"expires_at"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  *time.Time `json:"updated_at"`
 }

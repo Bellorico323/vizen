@@ -7,6 +7,8 @@ package pgstore
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createCondominium = `-- name: CreateCondominium :exec
@@ -39,4 +41,26 @@ func (q *Queries) CreateCondominium(ctx context.Context, arg CreateCondominiumPa
 		arg.PlanType,
 	)
 	return err
+}
+
+const getCondominiumById = `-- name: GetCondominiumById :one
+SELECT
+id, name, cnpj, address, plan_type, created_at, updated_at
+FROM condominiums
+WHERE id = $1
+`
+
+func (q *Queries) GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error) {
+	row := q.db.QueryRow(ctx, getCondominiumById, id)
+	var i Condominium
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Cnpj,
+		&i.Address,
+		&i.PlanType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
