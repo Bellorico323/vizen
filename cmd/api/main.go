@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/Bellorico323/vizen/internal/api"
+	"github.com/Bellorico323/vizen/internal/api/controllers"
+	"github.com/Bellorico323/vizen/internal/usecases"
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
@@ -36,14 +38,19 @@ func main() {
 		panic(err)
 	}
 
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World!"))
-	})
+	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
 
-	fmt.Println("Starting Server on port :3080")
-	if err := http.ListenAndServe("127.0.0.1:3000", r); err != nil {
+	api := api.Api{
+		Router: chi.NewMux(),
+		SignUpController: &controllers.SignupHandler{
+			SignUpUseCase: &signupWithCredentials,
+		},
+	}
+
+	api.BindRoutes()
+
+	fmt.Println("Starting Server on port :3000")
+	if err := http.ListenAndServe("127.0.0.1:3000", api.Router); err != nil {
 		panic(err)
 	}
 }

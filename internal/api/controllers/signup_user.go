@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/Bellorico323/vizen/internal/jsonutils"
@@ -53,6 +54,8 @@ func (h *SignupHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	id, err := h.SignUpUseCase.Exec(r.Context(), useCasePayload)
 	if err != nil {
+		slog.Error("Error while creating user", "error", err)
+
 		if errors.Is(err, usecases.ErrDuplicatedEmail) {
 			jsonutils.EncodeJson(w, r, http.StatusConflict, map[string]any{
 				"message": err,

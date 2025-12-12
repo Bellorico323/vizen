@@ -26,6 +26,14 @@ type SignupUserwithCredentialsReq struct {
 	Password   string
 }
 
+func NewSignupWithCredentialsUseCase(pool *pgxpool.Pool) SignupUserWithCredentials {
+	return SignupUserWithCredentials{
+		pool:    pool,
+		queries: pgstore.New(pool),
+		querier: pgstore.New(pool),
+	}
+}
+
 var (
 	ErrDuplicatedEmail = errors.New("email already exists")
 )
