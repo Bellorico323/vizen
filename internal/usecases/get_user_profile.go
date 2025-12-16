@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Bellorico323/vizen/internal/auth"
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -17,18 +16,16 @@ type UserProfileGetter interface {
 }
 
 type GetUserProfile struct {
-	querier      pgstore.Querier
-	pool         *pgxpool.Pool
-	queries      *pgstore.Queries
-	tokenService *auth.TokenService
+	querier pgstore.Querier
+	pool    *pgxpool.Pool
+	queries *pgstore.Queries
 }
 
-func NewGetUserProfile(pool *pgxpool.Pool, tokenService *auth.TokenService) *GetUserProfile {
+func NewGetUserProfile(pool *pgxpool.Pool) *GetUserProfile {
 	return &GetUserProfile{
-		querier:      pgstore.New(pool),
-		queries:      pgstore.New(pool),
-		pool:         pool,
-		tokenService: tokenService,
+		querier: pgstore.New(pool),
+		queries: pgstore.New(pool),
+		pool:    pool,
 	}
 }
 

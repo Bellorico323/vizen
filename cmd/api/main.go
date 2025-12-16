@@ -46,7 +46,7 @@ func main() {
 
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(pool, tokenService)
-	getUserProfile := usecases.NewGetUserProfile(pool, tokenService)
+	getUserProfile := usecases.NewGetUserProfile(pool)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
