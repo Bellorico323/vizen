@@ -11,7 +11,7 @@ import (
 )
 
 type SignupHandler struct {
-	SignUpUseCase *usecases.SignupUserWithCredentials
+	SignUpUseCase usecases.SignupWithCredentials
 }
 
 type SignupRequest struct {
@@ -47,7 +47,7 @@ func (h *SignupHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	useCasePayload := usecases.SignupUserwithCredentialsReq{
 		Name:       data.Name,
 		Avatar_url: data.AvatarURL,
-		Role:       data.Role,
+		Role:       role,
 		Email:      data.Email,
 		Password:   data.Password,
 	}

@@ -2,12 +2,16 @@ package api
 
 import (
 	"github.com/Bellorico323/vizen/internal/api/controllers"
+	"github.com/Bellorico323/vizen/internal/auth"
 	"github.com/go-chi/chi/v5"
 )
 
 type Api struct {
-	Router *chi.Mux
+	Router       *chi.Mux
+	TokenService *auth.TokenService
 
 	// Controllers
-	SignUpController *controllers.SignupHandler
+	SignupController *controllers.SignupHandler
+	SigninController *controllers.SigninHandler
+	UsersController  *controllers.UsersController
 }

@@ -16,3 +16,8 @@ VALUES (
   $3,
   $4
 ) RETURNING id;
+
+-- name: GetUserByID :one
+SELECT *
+FROM users
+WHERE id = $1;

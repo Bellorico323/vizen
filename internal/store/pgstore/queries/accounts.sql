@@ -10,3 +10,9 @@ INSERT INTO accounts (
   $3,
   $4
 );
+
+-- name: GetAccountByUserId :one
+SELECT
+  *
+FROM accounts
+WHERE user_id = $1;

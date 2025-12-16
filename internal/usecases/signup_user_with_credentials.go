@@ -12,6 +12,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type SignupWithCredentials interface {
+	Exec(ctx context.Context, req SignupUserwithCredentialsReq) (uuid.UUID, error)
+}
+
 type SignupUserWithCredentials struct {
 	querier pgstore.Querier
 	pool    *pgxpool.Pool
@@ -26,8 +30,8 @@ type SignupUserwithCredentialsReq struct {
 	Password   string
 }
 
-func NewSignupWithCredentialsUseCase(pool *pgxpool.Pool) SignupUserWithCredentials {
-	return SignupUserWithCredentials{
+func NewSignupWithCredentialsUseCase(pool *pgxpool.Pool) *SignupUserWithCredentials {
+	return &SignupUserWithCredentials{
 		pool:    pool,
 		queries: pgstore.New(pool),
 		querier: pgstore.New(pool),

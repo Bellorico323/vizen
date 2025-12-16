@@ -1,0 +1,45 @@
+package usecases
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/Bellorico323/vizen/internal/auth"
+	"github.com/Bellorico323/vizen/internal/store/pgstore"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+type UserProfileGetter interface {
+	Exec(ctx context.Context, userID uuid.UUID) (*pgstore.User, error)
+}
+
+type GetUserProfile struct {
+	querier      pgstore.Querier
+	pool         *pgxpool.Pool
+	queries      *pgstore.Queries
+	tokenService *auth.TokenService
+}
+
+func NewGetUserProfile(pool *pgxpool.Pool, tokenService *auth.TokenService) *GetUserProfile {
+	return &GetUserProfile{
+		querier:      pgstore.New(pool),
+		queries:      pgstore.New(pool),
+		pool:         pool,
+		tokenService: tokenService,
+	}
+}
+
+func (uc *GetUserProfile) Exec(ctx context.Context, userID uuid.UUID) (*pgstore.User, error) {
+	user, err := uc.querier.GetUserByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &pgstore.User{}, fmt.Errorf("User not found: %w", err)
+		}
+		return &pgstore.User{}, fmt.Errorf("Unexpected error occured: %w", err)
+	}
+
+	return &user, nil
+}

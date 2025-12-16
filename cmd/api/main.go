@@ -8,6 +8,7 @@ import (
 
 	"github.com/Bellorico323/vizen/internal/api"
 	"github.com/Bellorico323/vizen/internal/api/controllers"
+	"github.com/Bellorico323/vizen/internal/auth"
 	"github.com/Bellorico323/vizen/internal/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -38,12 +39,27 @@ func main() {
 		panic(err)
 	}
 
+	tokenService, err := auth.NewTokenService()
+	if err != nil {
+		panic(err)
+	}
+
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
+	signinWithCredentials := usecases.NewSigninUserWithCredentials(pool, tokenService)
+	getUserProfile := usecases.NewGetUserProfile(pool, tokenService)
 
 	api := api.Api{
-		Router: chi.NewMux(),
-		SignUpController: &controllers.SignupHandler{
-			SignUpUseCase: &signupWithCredentials,
+		Router:       chi.NewMux(),
+		TokenService: tokenService,
+
+		SignupController: &controllers.SignupHandler{
+			SignUpUseCase: signupWithCredentials,
+		},
+		SigninController: &controllers.SigninHandler{
+			SigninUseCase: signinWithCredentials,
+		},
+		UsersController: &controllers.UsersController{
+			GetUserProfile: getUserProfile,
 		},
 	}
 

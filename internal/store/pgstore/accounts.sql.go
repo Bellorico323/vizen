@@ -41,3 +41,31 @@ func (q *Queries) CreateAccountWithCredentials(ctx context.Context, arg CreateAc
 	)
 	return err
 }
+
+const getAccountByUserId = `-- name: GetAccountByUserId :one
+SELECT
+  id, user_id, provider_account_id, provider_id, password_hash, access_token, refresh_token, access_token_expires_at, refresh_token_expires_at, scope, id_token, created_at, updated_at
+FROM accounts
+WHERE user_id = $1
+`
+
+func (q *Queries) GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error) {
+	row := q.db.QueryRow(ctx, getAccountByUserId, userID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ProviderAccountID,
+		&i.ProviderID,
+		&i.PasswordHash,
+		&i.AccessToken,
+		&i.RefreshToken,
+		&i.AccessTokenExpiresAt,
+		&i.RefreshTokenExpiresAt,
+		&i.Scope,
+		&i.IDToken,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
