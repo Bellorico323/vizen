@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"log/slog"
+	"net"
 	"net/http"
 
 	"github.com/Bellorico323/vizen/internal/jsonutils"
@@ -15,10 +16,8 @@ type SigninHandler struct {
 }
 
 type SigninWithCredentialsRequest struct {
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=6"`
-	IpAddress string `json:"ipAddress" validate:"omitempty,ip_addr"`
-	UserAgent string `json:"userAgent"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
 }
 
 func (h *SigninHandler) Handle(w http.ResponseWriter, r *http.Request) {
@@ -38,11 +37,13 @@ func (h *SigninHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	host, _, _ := net.SplitHostPort(r.RemoteAddr)
+
 	payload := usecases.SigninUserWithCredentialsReq{
 		Email:     data.Email,
 		Password:  data.Password,
-		IpAddress: data.IpAddress,
-		UserAgent: data.UserAgent,
+		IpAddress: host,
+		UserAgent: r.UserAgent(),
 	}
 
 	tokens, err := h.SigninUseCase.Exec(r.Context(), payload)
@@ -61,8 +62,18 @@ func (h *SigninHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    tokens.RefreshToken,
+		HttpOnly: true,
+		Secure:   false, // TRUE if https
+		Path:     "/api/v1/auth",
+		MaxAge:   7 * 24 * 60 * 60, // 7 days
+		SameSite: http.SameSiteStrictMode,
+	})
+
 	jsonutils.EncodeJson(w, r, http.StatusOK, map[string]any{
-		"message": "User successfully logged in",
-		"tokens":  tokens,
+		"message":     "User successfully logged in",
+		"accessToken": tokens.AccessToken,
 	})
 }

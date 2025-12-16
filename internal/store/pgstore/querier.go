@@ -17,8 +17,10 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
+	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
+	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }
 
 var _ Querier = (*Queries)(nil)

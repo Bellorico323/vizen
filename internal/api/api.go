@@ -11,7 +11,8 @@ type Api struct {
 	TokenService *auth.TokenService
 
 	// Controllers
-	SignupController *controllers.SignupHandler
-	SigninController *controllers.SigninHandler
-	UsersController  *controllers.UsersController
+	SignupController       *controllers.SignupHandler
+	SigninController       *controllers.SigninHandler
+	UsersController        *controllers.UsersController
+	RefreshTokenController *controllers.RefreshTokenHandler
 }

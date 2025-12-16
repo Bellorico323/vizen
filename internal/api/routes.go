@@ -32,10 +32,14 @@ func (api *Api) BindRoutes() {
 				})
 			})
 
+			r.Route("/auth", func(r chi.Router) {
+				r.Post("/refresh", api.RefreshTokenController.Handle)
+			})
+
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware)
 
-				// Protected Routes
+				// Protected Route
 			})
 		})
 	})

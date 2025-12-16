@@ -46,6 +46,7 @@ func main() {
 
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(pool, tokenService)
+	refreshToken := usecases.NewRefreshTokenUseCase(pool, tokenService)
 	getUserProfile := usecases.NewGetUserProfile(pool)
 
 	api := api.Api{
@@ -57,6 +58,9 @@ func main() {
 		},
 		SigninController: &controllers.SigninHandler{
 			SigninUseCase: signinWithCredentials,
+		},
+		RefreshTokenController: &controllers.RefreshTokenHandler{
+			RefreshTokenUseCase: refreshToken,
 		},
 		UsersController: &controllers.UsersController{
 			GetUserProfile: getUserProfile,

@@ -47,3 +47,44 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) er
 	)
 	return err
 }
+
+const getSessionByToken = `-- name: GetSessionByToken :one
+SELECT id, user_id, token, expires_at, ip_address, user_agent, created_at, updated_at
+FROM sessions
+WHERE token = $1
+`
+
+func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {
+	row := q.db.QueryRow(ctx, getSessionByToken, token)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.IpAddress,
+		&i.UserAgent,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateRefreshToken = `-- name: UpdateRefreshToken :exec
+UPDATE sessions
+SET token = $1,
+    expires_at = $2,
+    updated_at = NOW()
+WHERE id = $3
+`
+
+type UpdateRefreshTokenParams struct {
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	ID        uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, updateRefreshToken, arg.Token, arg.ExpiresAt, arg.ID)
+	return err
+}
