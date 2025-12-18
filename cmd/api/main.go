@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Bellorico323/vizen/internal/api"
 	"github.com/Bellorico323/vizen/internal/api/controllers"
@@ -14,6 +15,22 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
+
+// @title           Vizen API
+// @version         1.0
+// @description     Backend server for Vizen Application.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name    Suporte Vizen
+// @contact.email   support@vizen.app
+
+// @host            localhost:3000
+// @BasePath        /api/v1
+// @schemes         http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -36,9 +53,21 @@ func main() {
 
 	defer pool.Close()
 
-	if err := pool.Ping(ctx); err != nil {
-		panic(err)
+	connected := false
+	for i := range 10 {
+		if err := pool.Ping(ctx); err == nil {
+			connected = true
+			break
+		}
+		fmt.Printf("Banco ainda indisponível (tentativa %d/10). Aguardando...\n", i+1)
+		time.Sleep(2 * time.Second)
 	}
+
+	if !connected {
+		panic("Não foi possível conectar ao banco de dados após várias tentativas")
+	}
+
+	fmt.Println("Conectado ao banco de dados com sucesso!")
 
 	tokenService, err := auth.NewTokenService()
 	if err != nil {

@@ -1,0 +1,23 @@
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task: dev
+
+  docs:
+    desc: Gera a documentação do Swagger
+    cmds:
+      - swag init -d cmd/api,internal -g main.go --parseDependency --parseInternal
+      - echo "Swagger gerado com sucesso! 📄"
+
+  dev:
+    desc: Roda a aplicação com hot-reload via Air
+    deps: [docs]
+    cmds:
+      - air --build.cmd "go build -o ./bin/api.exe ./cmd/api" --build.bin "./bin/api.exe"
+
+  clean:
+    cmds:
+      - rm -rf bin
+      - rm -rf tmp

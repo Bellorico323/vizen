@@ -1,0 +1,259 @@
+basePath: /api/v1
+definitions:
+  api_controllers.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    type: object
+  api_controllers.RefreshTokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  api_controllers.SigninResponse:
+    properties:
+      accessToken:
+        type: string
+      message:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  api_controllers.SigninWithCredentialsRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  api_controllers.SignupRequest:
+    properties:
+      avatar_url:
+        type: string
+      email:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - resident
+        - staff
+        - admin
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  api_controllers.SignupResponse:
+    properties:
+      message:
+        type: string
+      userId:
+        type: string
+    type: object
+  api_controllers.UserProfileResponse:
+    properties:
+      avatarUrl:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_api_common.ErrResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/validator.ErrorResponse'
+        type: array
+      message:
+        type: string
+    type: object
+  validator.ErrorResponse:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: support@vizen.app
+    name: Suporte Vizen
+  description: Backend server for Vizen Application.
+  termsOfService: http://swagger.io/terms/
+  title: Vizen API
+  version: "1.0"
+paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generates a new access token using a valid refresh token from Cookie
+        (Web) or Body (Mobile)
+      parameters:
+      - description: Refresh Token (Optional if using Cookies)
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/api_controllers.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed successfully
+          schema:
+            $ref: '#/definitions/api_controllers.RefreshTokenResponse'
+        "400":
+          description: Token not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: Invalid or expired session
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      summary: Refresh Access Token
+      tags:
+      - Auth
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Creates an user and account with credentials
+      parameters:
+      - description: Signup Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created user successfully
+          schema:
+            $ref: '#/definitions/api_controllers.SignupResponse'
+        "400":
+          description: Invalid JSON payload
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      summary: Create User
+      tags:
+      - Auth
+  /users/me:
+    get:
+      description: Retrieves detailed information about the currently logged-in user.
+        Requires a valid Bearer Token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile details
+          schema:
+            $ref: '#/definitions/api_controllers.UserProfileResponse'
+        "401":
+          description: Unauthorized / Invalid Token
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Current User Profile
+      tags:
+      - Users
+  /users/signin:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates the user and returns the Access Token. Refresh Token
+        is returned in the Body (Mobile) or HttpOnly Cookie (Web).
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.SigninWithCredentialsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/api_controllers.SigninResponse'
+        "400":
+          description: Invalid JSON payload
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      summary: User Login
+      tags:
+      - Auth
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

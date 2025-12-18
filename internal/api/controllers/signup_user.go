@@ -5,9 +5,11 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Bellorico323/vizen/internal/api/common"
 	"github.com/Bellorico323/vizen/internal/jsonutils"
 	"github.com/Bellorico323/vizen/internal/usecases"
 	"github.com/Bellorico323/vizen/internal/validator"
+	"github.com/google/uuid"
 )
 
 type SignupHandler struct {
@@ -22,19 +24,37 @@ type SignupRequest struct {
 	AvatarURL *string `json:"avatar_url" validate:"omitempty,url"`
 }
 
+type SignupResponse struct {
+	Message string    `json:"message"`
+	UserID  uuid.UUID `json:"userId"`
+}
+
+// Handle executes the user creation
+// @Summary			Create User
+// @Description Creates an user and account with credentials
+// @Tags				Auth
+// @Accept			json
+// @Produce 		json
+// @Param 			request body controllers.SignupRequest true "Signup Credentials"
+// @Success			201	{object}	controllers.SignupResponse "Created user successfully"
+// @Failure			400	{object}	common.ErrResponse	"Invalid JSON payload"
+// @Failure			422 {object}	common.ValidationErrResponse "Validation failed"
+// @Failure     409  {object}  common.ErrResponse "Email already exists"
+// @Failure			500	{object}	common.ErrResponse	"Internal server error"
+// @Router			/users [post]
 func (h *SignupHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	data, err := jsonutils.DecodeJson[SignupRequest](r)
 	if err != nil {
-		jsonutils.EncodeJson(w, r, http.StatusBadRequest, map[string]any{
-			"message": "Invalid json",
+		jsonutils.EncodeJson(w, r, http.StatusBadRequest, common.ErrResponse{
+			Message: "Invalid json",
 		})
 		return
 	}
 
 	if validationErrors := validator.ValidateStruct(data); len(validationErrors) > 0 {
-		jsonutils.EncodeJson(w, r, http.StatusUnprocessableEntity, map[string]any{
-			"message": "Validation failed",
-			"errors":  validationErrors,
+		jsonutils.EncodeJson(w, r, http.StatusUnprocessableEntity, common.ValidationErrResponse{
+			Message: "Validation failed",
+			Errors:  validationErrors,
 		})
 		return
 	}
@@ -57,20 +77,20 @@ func (h *SignupHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error while creating user", "error", err)
 
 		if errors.Is(err, usecases.ErrDuplicatedEmail) {
-			jsonutils.EncodeJson(w, r, http.StatusConflict, map[string]any{
-				"message": err,
+			jsonutils.EncodeJson(w, r, http.StatusConflict, common.ErrResponse{
+				Message: err.Error(),
 			})
 			return
 		}
 
-		jsonutils.EncodeJson(w, r, http.StatusInternalServerError, map[string]any{
-			"message": "An error occured while creating user",
+		jsonutils.EncodeJson(w, r, http.StatusInternalServerError, common.ErrResponse{
+			Message: "An error occurred while creating user",
 		})
 		return
 	}
 
-	jsonutils.EncodeJson(w, r, http.StatusCreated, map[string]any{
-		"message": "User successfully created",
-		"userId":  id,
+	jsonutils.EncodeJson(w, r, http.StatusCreated, SignupResponse{
+		Message: "User successfully created",
+		UserID:  id,
 	})
 }

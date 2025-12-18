@@ -16,6 +16,7 @@ WORKDIR /root/
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /app/vizen-api .
+COPY --from=builder /app/docs ./docs
 
 EXPOSE 8080
 
