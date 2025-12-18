@@ -2,13 +2,22 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
+	envFile := ".env"
+
+	if len(os.Args) > 1 {
+		envFile = os.Args[1]
+	}
+
+	fmt.Printf("Carregando variáveis de: %s\n", envFile)
+
+	if err := godotenv.Load(envFile); err != nil {
 		panic(err)
 	}
 
