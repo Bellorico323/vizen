@@ -62,6 +62,17 @@ func (h *SigninHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isMobile := r.Header.Get("X-Client-Type") == "mobile"
+
+	if isMobile {
+		jsonutils.EncodeJson(w, r, http.StatusOK, map[string]any{
+			"message":      "User successfully logged in",
+			"accessToken":  tokens.AccessToken,
+			"refreshToken": tokens.RefreshToken,
+		})
+		return
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    tokens.RefreshToken,

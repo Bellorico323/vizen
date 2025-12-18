@@ -17,16 +17,17 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		panic(err)
+		fmt.Println("Env variables file not found")
 	}
 
 	ctx := context.Background()
-	pool, err := pgxpool.New(ctx, fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s",
+	pool, err := pgxpool.New(ctx, fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
 		os.Getenv("VIZEN_DATABASE_USER"),
 		os.Getenv("VIZEN_DATABASE_PASSWORD"),
 		os.Getenv("VIZEN_DATABASE_HOST"),
 		os.Getenv("VIZEN_DATABASE_PORT"),
 		os.Getenv("VIZEN_DATABASE_NAME"),
+		os.Getenv("VIZEN_DATABASE_SSLMODE"),
 	))
 
 	if err != nil {
@@ -69,8 +70,13 @@ func main() {
 
 	api.BindRoutes()
 
-	fmt.Println("Starting Server on port :3000")
-	if err := http.ListenAndServe("127.0.0.1:3000", api.Router); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+
+	fmt.Printf("Starting Server on port: %s\n", port)
+	if err := http.ListenAndServe("0.0.0.0:"+port, api.Router); err != nil {
 		panic(err)
 	}
 }
