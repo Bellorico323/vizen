@@ -19,6 +19,72 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/apartments": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new apartment. Only users with the **admin** role are allowed to perform this action",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Apartments"
+                ],
+                "summary": "Create Apartment",
+                "parameters": [
+                    {
+                        "description": "Apartment creation payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateApartmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Condominium successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateApartmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON payload",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "User does not have permission to create an apartment",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/refresh": {
             "post": {
                 "description": "Generates a new access token using a valid refresh token from Cookie (Web) or Body (Mobile)",
@@ -300,6 +366,37 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api_controllers.CreateApartmentRequest": {
+            "type": "object",
+            "required": [
+                "condominiumId",
+                "number"
+            ],
+            "properties": {
+                "block": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string",
+                    "minLength": 5
+                },
+                "number": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "api_controllers.CreateApartmentResponse": {
+            "type": "object",
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.CreateCondominiumRequest": {
             "type": "object",
             "required": [

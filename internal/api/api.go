@@ -16,4 +16,5 @@ type Api struct {
 	UsersController             *controllers.UsersController
 	RefreshTokenController      *controllers.RefreshTokenHandler
 	CreateCondominiumController *controllers.CreateCondominiumHandler
+	CreateApartmentController   *controllers.CreateApartmentHandler
 }

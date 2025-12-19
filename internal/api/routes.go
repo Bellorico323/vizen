@@ -82,6 +82,9 @@ func (api *Api) BindRoutes() {
 				r.Route("/condominiums", func(r chi.Router) {
 					r.Post("/", api.CreateCondominiumController.Handle)
 				})
+				r.Route("/apartments", func(r chi.Router) {
+					r.Post("/", api.CreateApartmentController.Handle)
+				})
 			})
 		})
 	})

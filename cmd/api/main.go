@@ -82,6 +82,7 @@ func main() {
 	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
 	getUserProfile := usecases.NewGetUserProfile(queries)
 	createCondominium := usecases.NewCreateCondominiumUseCase(queries)
+	createApartment := usecases.NewCreateApartmentUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -101,6 +102,9 @@ func main() {
 		},
 		CreateCondominiumController: &controllers.CreateCondominiumHandler{
 			CreateCondominium: createCondominium,
+		},
+		CreateApartmentController: &controllers.CreateApartmentHandler{
+			CreateApartment: createApartment,
 		},
 	}
 
