@@ -11,6 +11,7 @@ import (
 	"github.com/Bellorico323/vizen/internal/usecases"
 	"github.com/Bellorico323/vizen/internal/validator"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type CreateApartmentHandler struct {
@@ -30,16 +31,18 @@ type CreateApartmentResponse struct {
 
 // Handle executes the apartment creation
 // @Summary 		Create Apartment
-// @Description Creates a new apartment. Only users with the **admin** role are allowed to perform this action
+// @Description Creates a new apartment. The user must be an **admin** or **syndic** of the condominium.
 // @Security 		BearerAuth
-// @Tags				Apartments
+// @Tags			Apartments
 // @Accept			json
 // @Produce			json
-// @Param				request body controllers.CreateApartmentRequest true "Apartment creation payload"
-// @Success			201 {object} controllers.CreateApartmentResponse "Condominium successfully created"
+// @Param			request body controllers.CreateApartmentRequest true "Apartment creation payload"
+// @Success			201 {object} controllers.CreateApartmentResponse "Apartment successfully created"
 // @Failure 		400 {object} common.ErrResponse "Invalid JSON payload"
 // @Failure 		401 {object} common.ErrResponse	"User not authenticated"
-// @Failure			403	{object} common.ErrResponse	"User does not have permission to create an apartment"
+// @Failure			403	{object} common.ErrResponse	"User does not have permission"
+// @Failure			404	{object} common.ErrResponse	"Condominium not found"
+// @Failure			409	{object} common.ErrResponse	"Apartment already exists in this block"
 // @Failure			422 {object} common.ValidationErrResponse "Validation failed"
 // @Failure			500 {object} common.ErrResponse "Internal server error"
 // @Router			/apartments	[post]
@@ -84,13 +87,24 @@ func (h *CreateApartmentHandler) Handle(w http.ResponseWriter, r *http.Request) 
 			jsonutils.EncodeJson(w, r, http.StatusForbidden, common.ErrResponse{
 				Message: err.Error(),
 			})
+
 		case errors.Is(err, usecases.ErrCondominiumNotFound):
-			jsonutils.EncodeJson(w, r, http.StatusNotFound, common.ErrResponse{Message: "Condominium not found"})
+			jsonutils.EncodeJson(w, r, http.StatusNotFound, common.ErrResponse{
+				Message: "Condominium not found",
+			})
+
 		default:
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+				jsonutils.EncodeJson(w, r, http.StatusConflict, common.ErrResponse{
+					Message: "This apartment number already exists in this block",
+				})
+				return
+			}
+
 			jsonutils.EncodeJson(w, r, http.StatusInternalServerError, common.ErrResponse{
 				Message: "An unexpected error occurred while creating apartment",
 			})
-
 		}
 		return
 	}

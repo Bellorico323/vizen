@@ -7,7 +7,7 @@ import (
 
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type CreateCondominiumUC interface {
@@ -23,36 +23,40 @@ type CreateCondominiumReq struct {
 }
 
 type CreateCondominiumUseCase struct {
-	querier pgstore.Querier
+	pool *pgxpool.Pool
 }
 
-func NewCreateCondominiumUseCase(q pgstore.Querier) *CreateCondominiumUseCase {
+func NewCreateCondominiumUseCase(p *pgxpool.Pool) *CreateCondominiumUseCase {
 	return &CreateCondominiumUseCase{
-		querier: q,
+		pool: p,
 	}
 }
 
-var ErrNoPermission = errors.New("user does not have permission")
+var (
+	ErrUserNotFound = errors.New("user not found")
+	ErrNoPermission = errors.New("user does not have permission")
+)
 
 func (uc *CreateCondominiumUseCase) Exec(ctx context.Context, req CreateCondominiumReq) (uuid.UUID, error) {
-	user, err := uc.querier.GetUserByID(ctx, req.UserID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return uuid.Nil, fmt.Errorf("user not found: %w", err)
-		}
-
-		return uuid.Nil, err
-	}
-
-	if user.Role != "admin" {
-		return uuid.Nil, ErrNoPermission
-	}
-
 	if !isValidPlanType(req.PlanType) {
 		return uuid.Nil, fmt.Errorf("invalid plan type")
 	}
 
-	id, err := uc.querier.CreateCondominium(ctx, pgstore.CreateCondominiumParams{
+	tx, err := uc.pool.Begin(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	defer tx.Rollback(ctx)
+
+	qtx := pgstore.New(tx)
+
+	_, err = qtx.GetUserByID(ctx, req.UserID)
+	if err != nil {
+		return uuid.Nil, ErrUserNotFound
+	}
+
+	condoID, err := qtx.CreateCondominium(ctx, pgstore.CreateCondominiumParams{
 		Name:     req.Name,
 		Cnpj:     req.Cnpj,
 		Address:  req.Address,
@@ -62,7 +66,20 @@ func (uc *CreateCondominiumUseCase) Exec(ctx context.Context, req CreateCondomin
 		return uuid.Nil, err
 	}
 
-	return id, nil
+	err = qtx.CreateCondominiumMember(ctx, pgstore.CreateCondominiumMemberParams{
+		CondominiumID: condoID,
+		UserID:        req.UserID,
+		Role:          "admin",
+	})
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to add admin member: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return condoID, nil
 }
 
 func isValidPlanType(plan string) bool {

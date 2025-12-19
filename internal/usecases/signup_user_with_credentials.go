@@ -23,7 +23,6 @@ type SignupUserWithCredentials struct {
 
 type SignupUserwithCredentialsReq struct {
 	Name       string
-	Role       string
 	Avatar_url *string
 	Email      string
 	Password   string
@@ -67,7 +66,6 @@ func (su *SignupUserWithCredentials) Exec(ctx context.Context, payload SignupUse
 		Name:      payload.Name,
 		Email:     payload.Email,
 		AvatarUrl: payload.Avatar_url,
-		Role:      payload.Role,
 	})
 	if err != nil {
 		return uuid.UUID{}, fmt.Errorf("Failed to create user: %w", err)

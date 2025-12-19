@@ -14,39 +14,31 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   name,
-  role,
   avatar_url,
   email
 )
 VALUES (
   $1,
   $2,
-  $3,
-  $4
+  $3
 ) RETURNING id
 `
 
 type CreateUserParams struct {
 	Name      string  `json:"name"`
-	Role      string  `json:"role"`
 	AvatarUrl *string `json:"avatar_url"`
 	Email     string  `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createUser,
-		arg.Name,
-		arg.Role,
-		arg.AvatarUrl,
-		arg.Email,
-	)
+	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.AvatarUrl, arg.Email)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, role, name, avatar_url, email, email_verified, created_at, updated_at
+SELECT id, name, avatar_url, email, email_verified, created_at, updated_at
 FROM users
 WHERE email = $1
 `
@@ -56,7 +48,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Role,
 		&i.Name,
 		&i.AvatarUrl,
 		&i.Email,
@@ -68,7 +59,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, role, name, avatar_url, email, email_verified, created_at, updated_at
+SELECT id, name, avatar_url, email, email_verified, created_at, updated_at
 FROM users
 WHERE id = $1
 `
@@ -78,7 +69,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Role,
 		&i.Name,
 		&i.AvatarUrl,
 		&i.Email,

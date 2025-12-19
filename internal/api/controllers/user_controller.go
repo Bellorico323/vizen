@@ -19,7 +19,6 @@ type UserProfileResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Role      string    `json:"role"`
 	AvatarURL *string   `json:"avatarUrl,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
@@ -56,7 +55,6 @@ func (uc *UsersController) Handle(w http.ResponseWriter, r *http.Request) {
 		ID:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
-		Role:      user.Role,
 		AvatarURL: user.AvatarUrl,
 		CreatedAt: user.CreatedAt,
 	})

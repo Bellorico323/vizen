@@ -59,6 +59,15 @@ type Condominium struct {
 	UpdatedAt *time.Time `json:"updated_at"`
 }
 
+type CondominiumMember struct {
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	UserID        uuid.UUID  `json:"user_id"`
+	Role          string     `json:"role"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+}
+
 type Resident struct {
 	ID            uuid.UUID `json:"id"`
 	UserID        uuid.UUID `json:"user_id"`
@@ -81,7 +90,6 @@ type Session struct {
 
 type User struct {
 	ID            uuid.UUID  `json:"id"`
-	Role          string     `json:"role"`
 	Name          string     `json:"name"`
 	AvatarUrl     *string    `json:"avatar_url"`
 	Email         string     `json:"email"`

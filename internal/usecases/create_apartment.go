@@ -3,7 +3,6 @@ package usecases
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/Bellorico323/vizen/internal/utils"
@@ -38,19 +37,6 @@ var (
 )
 
 func (uc *CreateApartmentUseCase) Exec(ctx context.Context, req CreateApartmentReq) (uuid.UUID, error) {
-	user, err := uc.querier.GetUserByID(ctx, req.UserID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return uuid.Nil, fmt.Errorf("user not found: %w", err)
-		}
-
-		return uuid.Nil, err
-	}
-
-	if user.Role != "admin" {
-		return uuid.Nil, ErrNoPermission
-	}
-
 	condominium, err := uc.querier.GetCondominiumById(ctx, req.CondominiumID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -58,6 +44,21 @@ func (uc *CreateApartmentUseCase) Exec(ctx context.Context, req CreateApartmentR
 		}
 
 		return uuid.Nil, err
+	}
+
+	role, err := uc.querier.GetCondominiumMemberRole(ctx, pgstore.GetCondominiumMemberRoleParams{
+		CondominiumID: req.CondominiumID,
+		UserID:        req.UserID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return uuid.Nil, ErrNoPermission
+		}
+		return uuid.Nil, err
+	}
+
+	if role != "admin" && role != "syndic" {
+		return uuid.Nil, ErrNoPermission
 	}
 
 	if req.Number == "" {

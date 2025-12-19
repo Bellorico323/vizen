@@ -11,6 +11,7 @@ import (
 	"github.com/Bellorico323/vizen/internal/usecases"
 	"github.com/Bellorico323/vizen/internal/validator"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type CreateCondominiumHandler struct {
@@ -31,16 +32,17 @@ type CreateCondominiumResponse struct {
 
 // Handle executes the condominium creation
 // @Summary 		Create Condominium
-// @Description	Creates a new condominium. Only users with the **admin** role are allowed to perform this action.
+// @Description	Creates a new condominium and assigns the current user as admin.
 // @Security		BearerAuth
-// @Tags				Condominiums
+// @Tags			Condominiums
 // @Accept			json
 // @Produce			json
-// @Param				request body controllers.CreateCondominiumRequest true "Condominium creation payload"
+// @Param			request body controllers.CreateCondominiumRequest true "Condominium creation payload"
 // @Success			201 {object} controllers.CreateCondominiumResponse "Condominium successfully created"
 // @Failure 		400	{object} common.ErrResponse "Invalid JSON payload"
 // @Failure			401 {object} common.ErrResponse "User not authenticated"
-// @Failure     403 {object} common.ErrResponse "User does not have permission to create a condominium"
+// @Failure			403 {object} common.ErrResponse "User does not have permission"
+// @Failure			409 {object} common.ErrResponse "CNPJ already registered"
 // @Failure			422 {object} common.ValidationErrResponse "Validation failed"
 // @Failure			500 {object} common.ErrResponse	"Internal server error"
 // @Router			/condominiums [post]
@@ -84,6 +86,14 @@ func (h *CreateCondominiumHandler) Handle(w http.ResponseWriter, r *http.Request
 		if errors.Is(err, usecases.ErrNoPermission) {
 			jsonutils.EncodeJson(w, r, http.StatusForbidden, common.ErrResponse{
 				Message: err.Error(),
+			})
+			return
+		}
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			jsonutils.EncodeJson(w, r, http.StatusConflict, common.ErrResponse{
+				Message: "This CNPJ is already registered",
 			})
 			return
 		}

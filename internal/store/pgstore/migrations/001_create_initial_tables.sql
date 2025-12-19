@@ -16,18 +16,30 @@ CREATE TABLE IF NOT EXISTS apartments (
     block           VARCHAR(20),
     number          VARCHAR(10) NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ
+    updated_at      TIMESTAMPTZ,
+
+    UNIQUE NULLS NOT DISTINCT (condominium_id, block, number)
 );
 
 CREATE TABLE IF NOT EXISTS users (
     id              UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    role            VARCHAR(25) NOT NULL CHECK (role IN ('admin', 'resident', 'staff')),
     name            VARCHAR(100) NOT NULL,
     avatar_url      TEXT,
     email           VARCHAR(100) NOT NULL UNIQUE,
     email_verified  TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS condominium_members (
+  id              UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  condominium_id  UUID NOT NULL REFERENCES condominiums(id) ON DELETE CASCADE,
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role            VARCHAR(25) NOT NULL CHECK (role IN ('admin', 'syndic', 'doorman', 'manager')),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ,
+
+  UNIQUE(condominium_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS residents (
@@ -81,8 +93,12 @@ CREATE TABLE IF NOT EXISTS verifications (
 
 CREATE INDEX idx_apartments_condominium_id ON apartments(condominium_id);
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_condominiums_members_users ON condominium_members(user_id);
+CREATE INDEX idx_condominiums_members_condo ON condominium_members(condominium_id);
+CREATE INDEX idx_condominium_members_user_condo ON condominium_members(user_id, condominium_id);
 
 ---- create above / drop below ----
+DROP TABLE IF EXISTS condominium_members;
 DROP TABLE IF EXISTS verifications;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS accounts;

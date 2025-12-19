@@ -26,8 +26,11 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new apartment. Only users with the **admin** role are allowed to perform this action",
+                "description": "Creates a new apartment. The user must be an **admin** or **syndic** of the condominium.",
                 "consumes": [
+                    "application/json"
+                ],
+                "produces": [
                     "application/json"
                 ],
                 "tags": [
@@ -47,7 +50,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Condominium successfully created",
+                        "description": "Apartment successfully created",
                         "schema": {
                             "$ref": "#/definitions/api_controllers.CreateApartmentResponse"
                         }
@@ -65,7 +68,19 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "User does not have permission to create an apartment",
+                        "description": "User does not have permission",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Condominium not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Apartment already exists in this block",
                         "schema": {
                             "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
                         }
@@ -143,7 +158,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new condominium. Only users with the **admin** role are allowed to perform this action.",
+                "description": "Creates a new condominium and assigns the current user as admin.",
                 "consumes": [
                     "application/json"
                 ],
@@ -185,7 +200,13 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "User does not have permission to create a condominium",
+                        "description": "User does not have permission",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "CNPJ already registered",
                         "schema": {
                             "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
                         }
@@ -377,8 +398,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "condominiumId": {
-                    "type": "string",
-                    "minLength": 5
+                    "type": "string"
                 },
                 "number": {
                     "type": "string",
@@ -507,14 +527,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 6
-                },
-                "role": {
-                    "type": "string",
-                    "enum": [
-                        "resident",
-                        "staff",
-                        "admin"
-                    ]
                 }
             }
         },
@@ -545,9 +557,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "role": {
                     "type": "string"
                 }
             }

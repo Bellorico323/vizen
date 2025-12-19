@@ -14,11 +14,13 @@ type Querier interface {
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
 	CreateApartment(ctx context.Context, arg CreateApartmentParams) (uuid.UUID, error)
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
+	CreateCondominiumMember(ctx context.Context, arg CreateCondominiumMemberParams) error
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
 	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
+	GetCondominiumMemberRole(ctx context.Context, arg GetCondominiumMemberRoleParams) (string, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)

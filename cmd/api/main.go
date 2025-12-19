@@ -81,7 +81,7 @@ func main() {
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(queries, tokenService)
 	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
 	getUserProfile := usecases.NewGetUserProfile(queries)
-	createCondominium := usecases.NewCreateCondominiumUseCase(queries)
+	createCondominium := usecases.NewCreateCondominiumUseCase(pool)
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
 
 	api := api.Api{

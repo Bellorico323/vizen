@@ -20,7 +20,6 @@ type SignupRequest struct {
 	Name      string  `json:"name" validate:"required,min=3,max=100"`
 	Email     string  `json:"email" validate:"required,email"`
 	Password  string  `json:"password" validate:"required,min=6"`
-	Role      string  `json:"role" validate:"omitempty,oneof=resident staff admin"`
 	AvatarURL *string `json:"avatar_url" validate:"omitempty,url"`
 }
 
@@ -59,15 +58,9 @@ func (h *SignupHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role := data.Role
-	if role == "" {
-		role = "resident"
-	}
-
 	useCasePayload := usecases.SignupUserwithCredentialsReq{
 		Name:       data.Name,
 		Avatar_url: data.AvatarURL,
-		Role:       role,
 		Email:      data.Email,
 		Password:   data.Password,
 	}
