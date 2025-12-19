@@ -12,6 +12,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AccessRequest struct {
+	ID            uuid.UUID   `json:"id"`
+	UserID        uuid.UUID   `json:"user_id"`
+	CondominiumID uuid.UUID   `json:"condominium_id"`
+	ApartmentID   uuid.UUID   `json:"apartment_id"`
+	Status        string      `json:"status"`
+	ReviewedBy    pgtype.UUID `json:"reviewed_by"`
+	ReviewedAt    *time.Time  `json:"reviewed_at"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     *time.Time  `json:"updated_at"`
+}
+
 type Account struct {
 	ID                    uuid.UUID  `json:"id"`
 	UserID                uuid.UUID  `json:"user_id"`

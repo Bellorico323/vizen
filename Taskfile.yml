@@ -23,6 +23,16 @@ tasks:
     cmds:
       - go run ./cmd/terndotenv/main.go
 
+  migrate_drop:
+    desc: Dropa as migrações do banco de dados
+    cmds:
+      - go run ./cmd/terndotenv/main.go -drop
+
+  migrate_new:
+    desc: Cria uma nova migration. Uso -> task migrate_new -- nome_da_migration
+    cmds:
+      - tern new -m ./internal/store/pgstore/migrations {{.CLI_ARGS}}
+
   sqlcgenerate:
     desc: Generate queries with sqlc
     cmds:

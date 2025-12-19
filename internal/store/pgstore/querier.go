@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	CreateAccessRequest(ctx context.Context, arg CreateAccessRequestParams) (uuid.UUID, error)
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
 	CreateApartment(ctx context.Context, arg CreateApartmentParams) (uuid.UUID, error)
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
@@ -24,6 +25,8 @@ type Querier interface {
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
+	ListPendingRequestsByCondo(ctx context.Context, condominiumID uuid.UUID) ([]ListPendingRequestsByCondoRow, error)
+	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
 	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }
 
