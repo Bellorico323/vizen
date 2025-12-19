@@ -9,7 +9,6 @@ import (
 	"github.com/Bellorico323/vizen/internal/auth"
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type RefreshToken interface {
@@ -18,14 +17,12 @@ type RefreshToken interface {
 
 type RefreshTokenUseCase struct {
 	querier      pgstore.Querier
-	pool         *pgxpool.Pool
 	tokenService *auth.TokenService
 }
 
-func NewRefreshTokenUseCase(pool *pgxpool.Pool, tokenService *auth.TokenService) *RefreshTokenUseCase {
+func NewRefreshTokenUseCase(querier pgstore.Querier, tokenService *auth.TokenService) *RefreshTokenUseCase {
 	return &RefreshTokenUseCase{
-		querier:      pgstore.New(pool),
-		pool:         pool,
+		querier:      querier,
 		tokenService: tokenService,
 	}
 }

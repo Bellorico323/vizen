@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Account struct {
@@ -34,6 +35,18 @@ type Apartment struct {
 	Number        string     `json:"number"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     *time.Time `json:"updated_at"`
+}
+
+type Bill struct {
+	ID            uuid.UUID   `json:"id"`
+	CondominiumID uuid.UUID   `json:"condominium_id"`
+	ApartmentID   uuid.UUID   `json:"apartment_id"`
+	BillType      string      `json:"bill_type"`
+	ValueInCents  int64       `json:"value_in_cents"`
+	DueDate       pgtype.Date `json:"due_date"`
+	PaidAt        *time.Time  `json:"paid_at"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     *time.Time  `json:"updated_at"`
 }
 
 type Condominium struct {

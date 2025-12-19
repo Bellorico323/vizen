@@ -75,10 +75,13 @@ func (api *Api) BindRoutes() {
 				r.Post("/refresh", api.RefreshTokenController.Handle)
 			})
 
+			// Needs auth
 			r.Group(func(r chi.Router) {
 				r.Use(authMiddleware)
 
-				// Protected Route
+				r.Route("/condominiums", func(r chi.Router) {
+					r.Post("/", api.CreateCondominiumController.Handle)
+				})
 			})
 		})
 	})

@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const createCondominium = `-- name: CreateCondominium :exec
+const createCondominium = `-- name: CreateCondominium :one
 INSERT INTO condominiums (
   name,
   cnpj,
@@ -23,7 +23,7 @@ VALUES (
   $2,
   $3,
   $4
-)
+) RETURNING id
 `
 
 type CreateCondominiumParams struct {
@@ -33,14 +33,38 @@ type CreateCondominiumParams struct {
 	PlanType string `json:"plan_type"`
 }
 
-func (q *Queries) CreateCondominium(ctx context.Context, arg CreateCondominiumParams) error {
-	_, err := q.db.Exec(ctx, createCondominium,
+func (q *Queries) CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createCondominium,
 		arg.Name,
 		arg.Cnpj,
 		arg.Address,
 		arg.PlanType,
 	)
-	return err
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getCondominiumByAddress = `-- name: GetCondominiumByAddress :one
+SELECT
+  id, name, cnpj, address, plan_type, created_at, updated_at
+FROM condominiums
+WHERE address = $1
+`
+
+func (q *Queries) GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error) {
+	row := q.db.QueryRow(ctx, getCondominiumByAddress, address)
+	var i Condominium
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Cnpj,
+		&i.Address,
+		&i.PlanType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const getCondominiumById = `-- name: GetCondominiumById :one

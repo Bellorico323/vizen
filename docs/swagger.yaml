@@ -1,5 +1,32 @@
 basePath: /api/v1
 definitions:
+  api_controllers.CreateCondominiumRequest:
+    properties:
+      address:
+        type: string
+      cnpj:
+        type: string
+      name:
+        type: string
+      planType:
+        enum:
+        - basic
+        - pro
+        - enterprise
+        type: string
+    required:
+    - address
+    - cnpj
+    - name
+    - planType
+    type: object
+  api_controllers.CreateCondominiumResponse:
+    properties:
+      condominiumId:
+        type: string
+      message:
+        type: string
+    type: object
   api_controllers.RefreshTokenRequest:
     properties:
       refreshToken:
@@ -143,6 +170,51 @@ paths:
       summary: Refresh Access Token
       tags:
       - Auth
+  /condominiums:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new condominium. Only users with the **admin** role are
+        allowed to perform this action.
+      parameters:
+      - description: Condominium creation payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateCondominiumRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Condominium successfully created
+          schema:
+            $ref: '#/definitions/api_controllers.CreateCondominiumResponse'
+        "400":
+          description: Invalid JSON payload
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: User does not have permission to create a condominium
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Condominium
+      tags:
+      - Condominiums
   /users:
     post:
       consumes:

@@ -12,10 +12,11 @@ import (
 
 type Querier interface {
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
-	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) error
+	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
+	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)

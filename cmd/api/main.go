@@ -10,6 +10,7 @@ import (
 	"github.com/Bellorico323/vizen/internal/api"
 	"github.com/Bellorico323/vizen/internal/api/controllers"
 	"github.com/Bellorico323/vizen/internal/auth"
+	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/Bellorico323/vizen/internal/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -74,10 +75,13 @@ func main() {
 		panic(err)
 	}
 
+	queries := pgstore.New(pool)
+
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
-	signinWithCredentials := usecases.NewSigninUserWithCredentials(pool, tokenService)
-	refreshToken := usecases.NewRefreshTokenUseCase(pool, tokenService)
-	getUserProfile := usecases.NewGetUserProfile(pool)
+	signinWithCredentials := usecases.NewSigninUserWithCredentials(queries, tokenService)
+	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
+	getUserProfile := usecases.NewGetUserProfile(queries)
+	createCondominium := usecases.NewCreateCondominiumUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -94,6 +98,9 @@ func main() {
 		},
 		UsersController: &controllers.UsersController{
 			GetUserProfile: getUserProfile,
+		},
+		CreateCondominiumController: &controllers.CreateCondominiumHandler{
+			CreateCondominium: createCondominium,
 		},
 	}
 

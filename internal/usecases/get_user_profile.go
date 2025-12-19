@@ -8,7 +8,6 @@ import (
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserProfileGetter interface {
@@ -17,15 +16,11 @@ type UserProfileGetter interface {
 
 type GetUserProfile struct {
 	querier pgstore.Querier
-	pool    *pgxpool.Pool
-	queries *pgstore.Queries
 }
 
-func NewGetUserProfile(pool *pgxpool.Pool) *GetUserProfile {
+func NewGetUserProfile(querier pgstore.Querier) *GetUserProfile {
 	return &GetUserProfile{
-		querier: pgstore.New(pool),
-		queries: pgstore.New(pool),
-		pool:    pool,
+		querier: querier,
 	}
 }
 

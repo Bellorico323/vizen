@@ -19,7 +19,6 @@ type SignupWithCredentials interface {
 type SignupUserWithCredentials struct {
 	querier pgstore.Querier
 	pool    *pgxpool.Pool
-	queries *pgstore.Queries
 }
 
 type SignupUserwithCredentialsReq struct {
@@ -33,7 +32,6 @@ type SignupUserwithCredentialsReq struct {
 func NewSignupWithCredentialsUseCase(pool *pgxpool.Pool) *SignupUserWithCredentials {
 	return &SignupUserWithCredentials{
 		pool:    pool,
-		queries: pgstore.New(pool),
 		querier: pgstore.New(pool),
 	}
 }
@@ -63,7 +61,7 @@ func (su *SignupUserWithCredentials) Exec(ctx context.Context, payload SignupUse
 
 	defer tx.Rollback(ctx)
 
-	qtx := su.queries.WithTx(tx)
+	qtx := pgstore.New(tx)
 
 	userId, err := qtx.CreateUser(ctx, pgstore.CreateUserParams{
 		Name:      payload.Name,

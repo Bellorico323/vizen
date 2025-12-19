@@ -10,7 +10,6 @@ import (
 	"github.com/Bellorico323/vizen/internal/auth"
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,8 +19,6 @@ type SigninWithCredentials interface {
 
 type SigninUserWithCredentials struct {
 	querier      pgstore.Querier
-	pool         *pgxpool.Pool
-	queries      *pgstore.Queries
 	tokenService *auth.TokenService
 }
 
@@ -37,11 +34,9 @@ type SigninUserWithCredentialsRes struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-func NewSigninUserWithCredentials(pool *pgxpool.Pool, tokenService *auth.TokenService) *SigninUserWithCredentials {
+func NewSigninUserWithCredentials(querier pgstore.Querier, tokenService *auth.TokenService) *SigninUserWithCredentials {
 	return &SigninUserWithCredentials{
-		querier:      pgstore.New(pool),
-		queries:      pgstore.New(pool),
-		pool:         pool,
+		querier:      querier,
 		tokenService: tokenService,
 	}
 }

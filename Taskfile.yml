@@ -7,6 +7,7 @@ tasks:
 
   docs:
     desc: Gera a documentação do Swagger
+    silent: true
     cmds:
       - swag init -d cmd/api,internal -g main.go --parseDependency --parseInternal
       - echo "Swagger gerado com sucesso! 📄"
@@ -16,6 +17,17 @@ tasks:
     deps: [docs]
     cmds:
       - air --build.cmd "go build -o ./bin/api.exe ./cmd/api" --build.bin "./bin/api.exe"
+
+  migrate:
+    desc: Roda as migrações do banco de dados
+    cmds:
+      - go run ./cmd/terndotenv/main.go
+
+  sqlcgenerate:
+    desc: Generate queries with sqlc
+    cmds:
+      - sqlc  generate -f ./internal/store/pgstore/sqlc.yaml
+      - echo "Queries generated successfully!"
 
   clean:
     cmds:

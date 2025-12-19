@@ -68,6 +68,75 @@
                 }
             }
         },
+        "/condominiums": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new condominium. Only users with the **admin** role are allowed to perform this action.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Condominiums"
+                ],
+                "summary": "Create Condominium",
+                "parameters": [
+                    {
+                        "description": "Condominium creation payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateCondominiumRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Condominium successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateCondominiumResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON payload",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "User does not have permission to create a condominium",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "post": {
                 "description": "Creates an user and account with credentials",
@@ -229,6 +298,45 @@
         }
     },
     "definitions": {
+        "api_controllers.CreateCondominiumRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "cnpj",
+                "name",
+                "planType"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cnpj": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planType": {
+                    "type": "string",
+                    "enum": [
+                        "basic",
+                        "pro",
+                        "enterprise"
+                    ]
+                }
+            }
+        },
+        "api_controllers.CreateCondominiumResponse": {
+            "type": "object",
+            "properties": {
+                "condominiumId": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.RefreshTokenRequest": {
             "type": "object",
             "properties": {
