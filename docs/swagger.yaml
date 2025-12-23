@@ -1,5 +1,29 @@
 basePath: /api/v1
 definitions:
+  api_controllers.CreateAccessRequestReq:
+    properties:
+      apartmentId:
+        type: string
+      type:
+        enum:
+        - owner
+        - tenant
+        - dependent
+        type: string
+      userId:
+        type: string
+    required:
+    - apartmentId
+    - type
+    - userId
+    type: object
+  api_controllers.CreateAccessRequestResponse:
+    properties:
+      message:
+        type: string
+      requestId:
+        type: string
+    type: object
   api_controllers.CreateApartmentRequest:
     properties:
       block:
@@ -148,6 +172,51 @@ info:
   title: Vizen API
   version: "1.0"
 paths:
+  /access-requests:
+    post:
+      consumes:
+      - application/json
+      description: Submits a request for a user to join an apartment (as owner, tenant,
+        or dependent).
+      parameters:
+      - description: Access Request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateAccessRequestReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Request created successfully
+          schema:
+            $ref: '#/definitions/api_controllers.CreateAccessRequestResponse'
+        "400":
+          description: Invalid JSON or Resident Type
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: User or Apartment not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Access Request
+      tags:
+      - Access Requests
   /apartments:
     post:
       consumes:

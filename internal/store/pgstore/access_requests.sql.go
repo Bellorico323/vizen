@@ -10,18 +10,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createAccessRequest = `-- name: CreateAccessRequest :one
 INSERT INTO access_requests (
   user_id,
   condominium_id,
-  apartment_id
+  apartment_id,
+  type
 ) VALUES (
   $1,
   $2,
-  $3
+  $3,
+  $4
 ) RETURNING id
 `
 
@@ -29,18 +30,49 @@ type CreateAccessRequestParams struct {
 	UserID        uuid.UUID `json:"user_id"`
 	CondominiumID uuid.UUID `json:"condominium_id"`
 	ApartmentID   uuid.UUID `json:"apartment_id"`
+	Type          string    `json:"type"`
 }
 
 func (q *Queries) CreateAccessRequest(ctx context.Context, arg CreateAccessRequestParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createAccessRequest, arg.UserID, arg.CondominiumID, arg.ApartmentID)
+	row := q.db.QueryRow(ctx, createAccessRequest,
+		arg.UserID,
+		arg.CondominiumID,
+		arg.ApartmentID,
+		arg.Type,
+	)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
 
+const getAccessRequestById = `-- name: GetAccessRequestById :one
+SELECT
+  id, user_id, condominium_id, apartment_id, status, reviewed_by, reviewed_at, created_at, updated_at, type
+FROM access_requests
+WHERE id = $1
+`
+
+func (q *Queries) GetAccessRequestById(ctx context.Context, id uuid.UUID) (AccessRequest, error) {
+	row := q.db.QueryRow(ctx, getAccessRequestById, id)
+	var i AccessRequest
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CondominiumID,
+		&i.ApartmentID,
+		&i.Status,
+		&i.ReviewedBy,
+		&i.ReviewedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Type,
+	)
+	return i, err
+}
+
 const listPendingRequestsByCondo = `-- name: ListPendingRequestsByCondo :many
 SELECT
-  ar.id, ar.user_id, ar.condominium_id, ar.apartment_id, ar.status, ar.reviewed_by, ar.reviewed_at, ar.created_at, ar.updated_at,
+  ar.id, ar.user_id, ar.condominium_id, ar.apartment_id, ar.status, ar.reviewed_by, ar.reviewed_at, ar.created_at, ar.updated_at, ar.type,
   u.name,
   u.email,
   a.block,
@@ -52,19 +84,20 @@ WHERE ar.condominium_id = $1 AND ar.status = 'pending'
 `
 
 type ListPendingRequestsByCondoRow struct {
-	ID            uuid.UUID   `json:"id"`
-	UserID        uuid.UUID   `json:"user_id"`
-	CondominiumID uuid.UUID   `json:"condominium_id"`
-	ApartmentID   uuid.UUID   `json:"apartment_id"`
-	Status        string      `json:"status"`
-	ReviewedBy    pgtype.UUID `json:"reviewed_by"`
-	ReviewedAt    *time.Time  `json:"reviewed_at"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     *time.Time  `json:"updated_at"`
-	Name          string      `json:"name"`
-	Email         string      `json:"email"`
-	Block         *string     `json:"block"`
-	Number        string      `json:"number"`
+	ID            uuid.UUID  `json:"id"`
+	UserID        uuid.UUID  `json:"user_id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	ApartmentID   uuid.UUID  `json:"apartment_id"`
+	Status        string     `json:"status"`
+	ReviewedBy    *uuid.UUID `json:"reviewed_by"`
+	ReviewedAt    *time.Time `json:"reviewed_at"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+	Type          string     `json:"type"`
+	Name          string     `json:"name"`
+	Email         string     `json:"email"`
+	Block         *string    `json:"block"`
+	Number        string     `json:"number"`
 }
 
 func (q *Queries) ListPendingRequestsByCondo(ctx context.Context, condominiumID uuid.UUID) ([]ListPendingRequestsByCondoRow, error) {
@@ -86,6 +119,7 @@ func (q *Queries) ListPendingRequestsByCondo(ctx context.Context, condominiumID 
 			&i.ReviewedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Type,
 			&i.Name,
 			&i.Email,
 			&i.Block,
@@ -111,9 +145,9 @@ WHERE id = $1
 `
 
 type UpdateAccessRequestStatusParams struct {
-	ID         uuid.UUID   `json:"id"`
-	Status     string      `json:"status"`
-	ReviewedBy pgtype.UUID `json:"reviewed_by"`
+	ID         uuid.UUID  `json:"id"`
+	Status     string     `json:"status"`
+	ReviewedBy *uuid.UUID `json:"reviewed_by"`
 }
 
 func (q *Queries) UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error {

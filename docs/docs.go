@@ -19,6 +19,75 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/access-requests": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Submits a request for a user to join an apartment (as owner, tenant, or dependent).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Access Requests"
+                ],
+                "summary": "Create Access Request",
+                "parameters": [
+                    {
+                        "description": "Access Request payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateAccessRequestReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Request created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateAccessRequestResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Resident Type",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User or Apartment not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apartments": {
             "post": {
                 "security": [
@@ -387,6 +456,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api_controllers.CreateAccessRequestReq": {
+            "type": "object",
+            "required": [
+                "apartmentId",
+                "type",
+                "userId"
+            ],
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "owner",
+                        "tenant",
+                        "dependent"
+                    ]
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.CreateAccessRequestResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "requestId": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.CreateApartmentRequest": {
             "type": "object",
             "required": [

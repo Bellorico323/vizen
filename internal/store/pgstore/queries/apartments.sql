@@ -8,3 +8,9 @@ INSERT INTO apartments (
   $2,
   $3
 ) RETURNING id;
+
+-- name: GetApartmentById :one
+SELECT
+  *
+FROM apartments
+WHERE id = $1;

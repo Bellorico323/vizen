@@ -13,15 +13,16 @@ import (
 )
 
 type AccessRequest struct {
-	ID            uuid.UUID   `json:"id"`
-	UserID        uuid.UUID   `json:"user_id"`
-	CondominiumID uuid.UUID   `json:"condominium_id"`
-	ApartmentID   uuid.UUID   `json:"apartment_id"`
-	Status        string      `json:"status"`
-	ReviewedBy    pgtype.UUID `json:"reviewed_by"`
-	ReviewedAt    *time.Time  `json:"reviewed_at"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     *time.Time  `json:"updated_at"`
+	ID            uuid.UUID  `json:"id"`
+	UserID        uuid.UUID  `json:"user_id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	ApartmentID   uuid.UUID  `json:"apartment_id"`
+	Status        string     `json:"status"`
+	ReviewedBy    *uuid.UUID `json:"reviewed_by"`
+	ReviewedAt    *time.Time `json:"reviewed_at"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+	Type          string     `json:"type"`
 }
 
 type Account struct {

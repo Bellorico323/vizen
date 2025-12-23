@@ -2,11 +2,13 @@
 INSERT INTO access_requests (
   user_id,
   condominium_id,
-  apartment_id
+  apartment_id,
+  type
 ) VALUES (
   $1,
   $2,
-  $3
+  $3,
+  $4
 ) RETURNING id;
 
 -- name: ListPendingRequestsByCondo :many
@@ -27,4 +29,10 @@ SET status = $2,
     reviewed_by = $3,
     reviewed_at = NOW(),
     updated_at = NOW()
+WHERE id = $1;
+
+-- name: GetAccessRequestById :one
+SELECT
+  *
+FROM access_requests
 WHERE id = $1;

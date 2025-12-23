@@ -83,6 +83,8 @@ func main() {
 	getUserProfile := usecases.NewGetUserProfile(queries)
 	createCondominium := usecases.NewCreateCondominiumUseCase(pool)
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
+	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries)
+	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -105,6 +107,12 @@ func main() {
 		},
 		CreateApartmentController: &controllers.CreateApartmentHandler{
 			CreateApartment: createApartment,
+		},
+		CreateAccessRequestController: &controllers.CreateAccessRequestHandler{
+			CreateAccessRequest: createAccessRequest,
+		},
+		ApproveAccessRequestController: &controllers.ApproveAccessRequestHandler{
+			ApproveAccessRequest: approveAccessRequest,
 		},
 	}
 

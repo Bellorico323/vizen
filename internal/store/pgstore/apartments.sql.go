@@ -35,3 +35,24 @@ func (q *Queries) CreateApartment(ctx context.Context, arg CreateApartmentParams
 	err := row.Scan(&id)
 	return id, err
 }
+
+const getApartmentById = `-- name: GetApartmentById :one
+SELECT
+  id, condominium_id, block, number, created_at, updated_at
+FROM apartments
+WHERE id = $1
+`
+
+func (q *Queries) GetApartmentById(ctx context.Context, id uuid.UUID) (Apartment, error) {
+	row := q.db.QueryRow(ctx, getApartmentById, id)
+	var i Apartment
+	err := row.Scan(
+		&i.ID,
+		&i.CondominiumID,
+		&i.Block,
+		&i.Number,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
