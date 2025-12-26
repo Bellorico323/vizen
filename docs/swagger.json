@@ -86,6 +86,162 @@
                 }
             }
         },
+        "/access-requests/approve": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Approves a pending request, turning the user into an official resident.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Access Requests"
+                ],
+                "summary": "Approve Access Request",
+                "parameters": [
+                    {
+                        "description": "Approval payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ApproveAccessRequestReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request approved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ApproveAccessRequestResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Request not pending",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "User does not have permission",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Access request not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "User is already a resident",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/access-requests/reject": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Rejects a pending request, denying the user access to the condominium.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Access Requests"
+                ],
+                "summary": "Reject Access Request",
+                "parameters": [
+                    {
+                        "description": "Rejection payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.RejectAccessRequestReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request rejected successfully",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.RejectAccessRequestResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Request not pending",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "User does not have permission",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Access request not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apartments": {
             "post": {
                 "security": [
@@ -351,6 +507,62 @@
                 }
             }
         },
+        "/users/devices": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Register Device token",
+                "parameters": [
+                    {
+                        "description": "Register device payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.RegisterDeviceReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Device registred successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Request not pending",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me": {
             "get": {
                 "security": [
@@ -454,6 +666,28 @@
         }
     },
     "definitions": {
+        "api_controllers.ApproveAccessRequestReq": {
+            "type": "object",
+            "required": [
+                "accessRequestId"
+            ],
+            "properties": {
+                "accessRequestId": {
+                    "type": "string"
+                },
+                "isResponsible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api_controllers.ApproveAccessRequestResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.CreateAccessRequestReq": {
             "type": "object",
             "required": [
@@ -577,6 +811,44 @@
                 }
             }
         },
+        "api_controllers.RegisterDeviceReq": {
+            "type": "object",
+            "required": [
+                "fcmToken"
+            ],
+            "properties": {
+                "fcmToken": {
+                    "type": "string"
+                },
+                "platform": {
+                    "type": "string",
+                    "enum": [
+                        "android",
+                        "ios",
+                        "web"
+                    ]
+                }
+            }
+        },
+        "api_controllers.RejectAccessRequestReq": {
+            "type": "object",
+            "required": [
+                "accessRequestId"
+            ],
+            "properties": {
+                "accessRequestId": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.RejectAccessRequestResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.SigninResponse": {
             "type": "object",
             "properties": {
@@ -664,6 +936,14 @@
             }
         },
         "github_com_Bellorico323_vizen_internal_api_common.ErrResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_api_common.SuccessResponse": {
             "type": "object",
             "properties": {
                 "message": {

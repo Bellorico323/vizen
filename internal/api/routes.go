@@ -89,6 +89,7 @@ func (api *Api) BindRoutes() {
 				r.Route("/access_requests", func(r chi.Router) {
 					r.Post("/", api.CreateAccessRequestController.Handle)
 					r.Post("/approve", api.ApproveAccessRequestController.Handle)
+					r.Post("/reject", api.RejectAccessRequestController.Handle)
 				})
 			})
 		})

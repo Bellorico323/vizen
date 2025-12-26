@@ -113,6 +113,8 @@ func main() {
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
 	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries, notiService)
 	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool, notiService)
+	rejectAccessRequest := usecases.NewRejectAccessRequestUseCase(pool, notiService)
+	registerUserDevice := usecases.NewRegisterDeviceUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -141,6 +143,12 @@ func main() {
 		},
 		ApproveAccessRequestController: &controllers.ApproveAccessRequestHandler{
 			ApproveAccessRequest: approveAccessRequest,
+		},
+		RejectAccessRequestController: &controllers.RejectAccessRequestHandler{
+			RejectAccessRequest: rejectAccessRequest,
+		},
+		RegisterDeviceController: &controllers.RegisterDeviceHandler{
+			RegisterDevice: *registerUserDevice,
 		},
 	}
 

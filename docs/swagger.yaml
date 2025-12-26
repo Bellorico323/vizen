@@ -1,5 +1,19 @@
 basePath: /api/v1
 definitions:
+  api_controllers.ApproveAccessRequestReq:
+    properties:
+      accessRequestId:
+        type: string
+      isResponsible:
+        type: boolean
+    required:
+    - accessRequestId
+    type: object
+  api_controllers.ApproveAccessRequestResponse:
+    properties:
+      message:
+        type: string
+    type: object
   api_controllers.CreateAccessRequestReq:
     properties:
       apartmentId:
@@ -83,6 +97,31 @@ definitions:
       refreshToken:
         type: string
     type: object
+  api_controllers.RegisterDeviceReq:
+    properties:
+      fcmToken:
+        type: string
+      platform:
+        enum:
+        - android
+        - ios
+        - web
+        type: string
+    required:
+    - fcmToken
+    type: object
+  api_controllers.RejectAccessRequestReq:
+    properties:
+      accessRequestId:
+        type: string
+    required:
+    - accessRequestId
+    type: object
+  api_controllers.RejectAccessRequestResponse:
+    properties:
+      message:
+        type: string
+    type: object
   api_controllers.SigninResponse:
     properties:
       accessToken:
@@ -142,6 +181,11 @@ definitions:
         type: string
     type: object
   github_com_Bellorico323_vizen_internal_api_common.ErrResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_api_common.SuccessResponse:
     properties:
       message:
         type: string
@@ -215,6 +259,106 @@ paths:
       security:
       - BearerAuth: []
       summary: Create Access Request
+      tags:
+      - Access Requests
+  /access-requests/approve:
+    post:
+      consumes:
+      - application/json
+      description: Approves a pending request, turning the user into an official resident.
+      parameters:
+      - description: Approval payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.ApproveAccessRequestReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Request approved successfully
+          schema:
+            $ref: '#/definitions/api_controllers.ApproveAccessRequestResponse'
+        "400":
+          description: Invalid JSON or Request not pending
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: User does not have permission
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: Access request not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: User is already a resident
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Approve Access Request
+      tags:
+      - Access Requests
+  /access-requests/reject:
+    post:
+      consumes:
+      - application/json
+      description: Rejects a pending request, denying the user access to the condominium.
+      parameters:
+      - description: Rejection payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.RejectAccessRequestReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Request rejected successfully
+          schema:
+            $ref: '#/definitions/api_controllers.RejectAccessRequestResponse'
+        "400":
+          description: Invalid JSON or Request not pending
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: User does not have permission
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: Access request not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Reject Access Request
       tags:
       - Access Requests
   /apartments:
@@ -390,6 +534,41 @@ paths:
       summary: Create User
       tags:
       - Auth
+  /users/devices:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Register device payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.RegisterDeviceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Device registred successfully
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.SuccessResponse'
+        "400":
+          description: Invalid JSON or Request not pending
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Register Device token
+      tags:
+      - Notifications
   /users/me:
     get:
       description: Retrieves detailed information about the currently logged-in user.
