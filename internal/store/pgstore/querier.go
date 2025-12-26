@@ -22,13 +22,16 @@ type Querier interface {
 	GetAccessRequestById(ctx context.Context, id uuid.UUID) (AccessRequest, error)
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
 	GetApartmentById(ctx context.Context, id uuid.UUID) (Apartment, error)
+	GetCondoAdminTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
 	GetCondominiumMemberRole(ctx context.Context, arg GetCondominiumMemberRoleParams) (string, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
+	GetUserDeviceTokens(ctx context.Context, userID uuid.UUID) ([]string, error)
 	ListPendingRequestsByCondo(ctx context.Context, condominiumID uuid.UUID) ([]ListPendingRequestsByCondoRow, error)
+	SaveUserDevice(ctx context.Context, arg SaveUserDeviceParams) error
 	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
 	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }

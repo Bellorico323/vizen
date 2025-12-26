@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Bellorico323/vizen/internal/services"
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -21,12 +22,14 @@ type CreateAccessRequestReq struct {
 }
 
 type CreateAccessRequestUseCase struct {
-	querier pgstore.Querier
+	querier  pgstore.Querier
+	notifier services.NotificationService
 }
 
-func NewCreateAccessRequestUseCase(q pgstore.Querier) CreateAccessRequestUC {
+func NewCreateAccessRequestUseCase(q pgstore.Querier, n services.NotificationService) CreateAccessRequestUC {
 	return &CreateAccessRequestUseCase{
-		querier: q,
+		querier:  q,
+		notifier: n,
 	}
 }
 
@@ -70,6 +73,16 @@ func (uc *CreateAccessRequestUseCase) Exec(ctx context.Context, req CreateAccess
 	if err != nil {
 		return uuid.Nil, err
 	}
+
+	go func() {
+		bgCtx := context.Background()
+		_ = uc.notifier.SendToCondoAdmins(
+			bgCtx,
+			apartment.CondominiumID,
+			"Nova Solicitação de Acesso",
+			"Um novo usuário solicitou acesso ao apartamento.",
+		)
+	}()
 
 	return id, nil
 }

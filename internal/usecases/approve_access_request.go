@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Bellorico323/vizen/internal/services"
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/Bellorico323/vizen/internal/utils"
 	"github.com/google/uuid"
@@ -23,12 +24,14 @@ type ApproveAccessRequestReq struct {
 }
 
 type ApproveAccessRequestUseCase struct {
-	pool *pgxpool.Pool
+	pool     *pgxpool.Pool
+	notifier services.NotificationService
 }
 
-func NewApproveAccessRequestUseCase(pool *pgxpool.Pool) ApproveAccessRequestUC {
+func NewApproveAccessRequestUseCase(pool *pgxpool.Pool, n services.NotificationService) ApproveAccessRequestUC {
 	return &ApproveAccessRequestUseCase{
-		pool: pool,
+		pool:     pool,
+		notifier: n,
 	}
 }
 
@@ -98,6 +101,17 @@ func (uc *ApproveAccessRequestUseCase) Exec(ctx context.Context, req ApproveAcce
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
+
+	go func() {
+		bgCtx := context.Background()
+
+		var title, body string
+		title = "Acesso Aprovado"
+		body = "Bem vindo! Você agora faz parte do condomínio."
+
+		_ = uc.notifier.SendToUser(bgCtx, accessRequest.UserID, title, body)
+
+	}()
 
 	return nil
 }

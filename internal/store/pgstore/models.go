@@ -111,6 +111,15 @@ type User struct {
 	UpdatedAt     *time.Time `json:"updated_at"`
 }
 
+type UserDevice struct {
+	ID         uuid.UUID `json:"id"`
+	UserID     uuid.UUID `json:"user_id"`
+	FcmToken   string    `json:"fcm_token"`
+	Platform   *string   `json:"platform"`
+	LastUsedAt time.Time `json:"last_used_at"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
 type Verification struct {
 	ID         uuid.UUID  `json:"id"`
 	Identifier string     `json:"identifier"`

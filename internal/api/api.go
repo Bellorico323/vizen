@@ -19,4 +19,5 @@ type Api struct {
 	CreateApartmentController      *controllers.CreateApartmentHandler
 	CreateAccessRequestController  *controllers.CreateAccessRequestHandler
 	ApproveAccessRequestController *controllers.ApproveAccessRequestHandler
+	RegisterDeviceController       *controllers.RegisterDeviceHandler
 }

@@ -2,19 +2,24 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
+	firebase "firebase.google.com/go/v4"
 	"github.com/Bellorico323/vizen/internal/api"
 	"github.com/Bellorico323/vizen/internal/api/controllers"
 	"github.com/Bellorico323/vizen/internal/auth"
+	"github.com/Bellorico323/vizen/internal/infra/notification"
 	"github.com/Bellorico323/vizen/internal/store/pgstore"
 	"github.com/Bellorico323/vizen/internal/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"google.golang.org/api/option"
 )
 
 // @title           Vizen API
@@ -77,14 +82,37 @@ func main() {
 
 	queries := pgstore.New(pool)
 
+	credsBase64 := os.Getenv("FIREBASE_CREDENTIALS_BASE64")
+	if credsBase64 == "" {
+		slog.Error("FIREBASE_CREDENTIALS_BASE64 environment variable is not set")
+	}
+
+	credJSON, err := base64.StdEncoding.DecodeString(credsBase64)
+	if err != nil {
+		slog.Error("failed to decode firebase credentials", "error", err)
+	}
+
+	opt := option.WithCredentialsJSON(credJSON)
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		slog.Error("Error initializing app", "error", err)
+	}
+
+	messagingClient, err := app.Messaging(context.Background())
+	if err != nil {
+		slog.Error("Error getting client", "error", err)
+	}
+
+	notiService := notification.NewFireBaseService(messagingClient, queries)
+
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(queries, tokenService)
 	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
 	getUserProfile := usecases.NewGetUserProfile(queries)
 	createCondominium := usecases.NewCreateCondominiumUseCase(pool)
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
-	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries)
-	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool)
+	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries, notiService)
+	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool, notiService)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
