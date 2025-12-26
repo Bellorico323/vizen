@@ -582,7 +582,7 @@
                     "200": {
                         "description": "User profile details",
                         "schema": {
-                            "$ref": "#/definitions/api_controllers.UserProfileResponse"
+                            "$ref": "#/definitions/usecases.GetUserProfileRes"
                         }
                     },
                     "401": {
@@ -915,26 +915,6 @@
                 }
             }
         },
-        "api_controllers.UserProfileResponse": {
-            "type": "object",
-            "properties": {
-                "avatarUrl": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_Bellorico323_vizen_internal_api_common.ErrResponse": {
             "type": "object",
             "properties": {
@@ -962,6 +942,92 @@
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.GetResidencesByUserIdRow": {
+            "type": "object",
+            "properties": {
+                "apartement_number": {
+                    "type": "string"
+                },
+                "apartment_id": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "condominium_id": {
+                    "type": "string"
+                },
+                "condominium_name": {
+                    "type": "string"
+                },
+                "is_responsible": {
+                    "type": "boolean"
+                },
+                "resident_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.GetUserMembershipsRow": {
+            "type": "object",
+            "properties": {
+                "condominium_id": {
+                    "type": "string"
+                },
+                "condominium_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.User": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "email_verified": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecases.GetUserProfileRes": {
+            "type": "object",
+            "properties": {
+                "memberships": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetUserMembershipsRow"
+                    }
+                },
+                "residences": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetResidencesByUserIdRow"
+                    }
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.User"
                 }
             }
         },

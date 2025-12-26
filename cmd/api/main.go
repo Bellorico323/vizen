@@ -108,13 +108,14 @@ func main() {
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(queries, tokenService)
 	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
-	getUserProfile := usecases.NewGetUserProfile(queries)
+	getUserProfile := usecases.NewGetUserProfileUseCase(queries)
 	createCondominium := usecases.NewCreateCondominiumUseCase(pool)
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
 	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries, notiService)
 	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool, notiService)
 	rejectAccessRequest := usecases.NewRejectAccessRequestUseCase(pool, notiService)
 	registerUserDevice := usecases.NewRegisterDeviceUseCase(queries)
+	createAnnouncement := usecases.NewCreateAnnouncementUseCase(queries, notiService)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -149,6 +150,9 @@ func main() {
 		},
 		RegisterDeviceController: &controllers.RegisterDeviceHandler{
 			RegisterDevice: *registerUserDevice,
+		},
+		CreateAnnouncementController: &controllers.CreateAnnouncementHandler{
+			CreateAnnouncement: createAnnouncement,
 		},
 	}
 

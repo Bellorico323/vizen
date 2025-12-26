@@ -13,26 +13,34 @@ import (
 type Querier interface {
 	CreateAccessRequest(ctx context.Context, arg CreateAccessRequestParams) (uuid.UUID, error)
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
+	CreateAnnouncement(ctx context.Context, arg CreateAnnouncementParams) (CreateAnnouncementRow, error)
 	CreateApartment(ctx context.Context, arg CreateApartmentParams) (uuid.UUID, error)
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
 	CreateCondominiumMember(ctx context.Context, arg CreateCondominiumMemberParams) error
 	CreateResident(ctx context.Context, arg CreateResidentParams) error
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
+	DeleteAnnouncement(ctx context.Context, arg DeleteAnnouncementParams) error
 	GetAccessRequestById(ctx context.Context, id uuid.UUID) (AccessRequest, error)
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
+	GetAnnouncementById(ctx context.Context, id uuid.UUID) (Announcement, error)
 	GetApartmentById(ctx context.Context, id uuid.UUID) (Apartment, error)
 	GetCondoAdminTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
+	GetCondoResidentsTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
 	GetCondominiumMemberRole(ctx context.Context, arg GetCondominiumMemberRoleParams) (string, error)
+	GetManyAnnouncementsByCondoId(ctx context.Context, arg GetManyAnnouncementsByCondoIdParams) ([]GetManyAnnouncementsByCondoIdRow, error)
+	GetResidencesByUserId(ctx context.Context, userID uuid.UUID) ([]GetResidencesByUserIdRow, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 	GetUserDeviceTokens(ctx context.Context, userID uuid.UUID) ([]string, error)
+	GetUserMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserMembershipsRow, error)
 	ListPendingRequestsByCondo(ctx context.Context, condominiumID uuid.UUID) ([]ListPendingRequestsByCondoRow, error)
 	SaveUserDevice(ctx context.Context, arg SaveUserDeviceParams) error
 	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
+	UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) error
 	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }
 

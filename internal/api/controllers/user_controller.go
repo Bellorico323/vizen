@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/Bellorico323/vizen/internal/api/common"
 	"github.com/Bellorico323/vizen/internal/auth"
@@ -12,15 +11,31 @@ import (
 )
 
 type UsersController struct {
-	GetUserProfile *usecases.GetUserProfile
+	GetUserProfile usecases.GetUserProfileUC
 }
 
 type UserProfileResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	AvatarURL *string   `json:"avatarUrl,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID          uuid.UUID            `json:"id"`
+	Name        string               `json:"name"`
+	Email       string               `json:"email"`
+	AvatarUrl   *string              `json:"avatarUrl"`
+	Residences  []ResidenceResponse  `json:"residences"`
+	Memberships []MembershipResponse `json:"memberships"`
+}
+
+type ResidenceResponse struct {
+	CondominiumName string    `json:"condominiumName"`
+	CondominiumID   uuid.UUID `json:"condominiumId"`
+	Block           *string   `json:"block"`
+	Number          string    `json:"number"`
+	Type            string    `json:"type"`          // owner, tenant
+	IsResponsible   bool      `json:"isResponsible"` // Pode abrir chamados?
+}
+
+type MembershipResponse struct {
+	CondominiumName string    `json:"condominiumName"`
+	CondominiumID   uuid.UUID `json:"condominiumId"`
+	Role            string    `json:"role"` // admin, syndic
 }
 
 // Handle returns the current authenticated user profile
@@ -29,7 +44,7 @@ type UserProfileResponse struct {
 // @Security		BearerAuth
 // @Tags				Users
 // @Produce 		json
-// @Success			200	{object}	controllers.UserProfileResponse "User profile details"
+// @Success			200	{object}	controllers.UserProfileResponse   "User profile details"
 // @Failure			401	{object}	common.ErrResponse	"Unauthorized / Invalid Token"
 // @Failure			404	{object}	common.ErrResponse	"User not found"
 // @Failure     500  {object}  common.ErrResponse "Internal server error"
@@ -43,7 +58,7 @@ func (uc *UsersController) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := uc.GetUserProfile.Exec(r.Context(), userID)
+	result, err := uc.GetUserProfile.Exec(r.Context(), userID)
 	if err != nil {
 		jsonutils.EncodeJson(w, r, http.StatusNotFound, common.ErrResponse{
 			Message: err.Error(),
@@ -51,11 +66,33 @@ func (uc *UsersController) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonutils.EncodeJson(w, r, http.StatusOK, UserProfileResponse{
-		ID:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		AvatarURL: user.AvatarUrl,
-		CreatedAt: user.CreatedAt,
-	})
+	response := UserProfileResponse{
+		ID:          result.User.ID,
+		Name:        result.User.Name,
+		Email:       result.User.Email,
+		AvatarUrl:   result.User.AvatarUrl,
+		Residences:  make([]ResidenceResponse, len(*result.Residences)),
+		Memberships: make([]MembershipResponse, len(*result.Memberships)),
+	}
+
+	for i, res := range *result.Residences {
+		response.Residences[i] = ResidenceResponse{
+			CondominiumName: res.CondominiumName,
+			CondominiumID:   res.CondominiumID,
+			Block:           res.Block,
+			Number:          res.ApartementNumber,
+			Type:            res.ResidentType,
+			IsResponsible:   res.IsResponsible,
+		}
+	}
+
+	for i, mem := range *result.Memberships {
+		response.Memberships[i] = MembershipResponse{
+			CondominiumName: mem.CondominiumName,
+			CondominiumID:   mem.CondominiumID,
+			Role:            mem.Role,
+		}
+	}
+
+	jsonutils.EncodeJson(w, r, http.StatusOK, response)
 }

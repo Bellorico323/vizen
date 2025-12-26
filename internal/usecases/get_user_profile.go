@@ -10,28 +10,48 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type UserProfileGetter interface {
-	Exec(ctx context.Context, userID uuid.UUID) (*pgstore.User, error)
+type GetUserProfileUC interface {
+	Exec(ctx context.Context, userID uuid.UUID) (*GetUserProfileRes, error)
 }
 
-type GetUserProfile struct {
+type GetUserProfileUseCase struct {
 	querier pgstore.Querier
 }
 
-func NewGetUserProfile(querier pgstore.Querier) *GetUserProfile {
-	return &GetUserProfile{
+type GetUserProfileRes struct {
+	User        *pgstore.User
+	Residences  *[]pgstore.GetResidencesByUserIdRow
+	Memberships *[]pgstore.GetUserMembershipsRow
+}
+
+func NewGetUserProfileUseCase(querier pgstore.Querier) *GetUserProfileUseCase {
+	return &GetUserProfileUseCase{
 		querier: querier,
 	}
 }
 
-func (uc *GetUserProfile) Exec(ctx context.Context, userID uuid.UUID) (*pgstore.User, error) {
+func (uc *GetUserProfileUseCase) Exec(ctx context.Context, userID uuid.UUID) (*GetUserProfileRes, error) {
 	user, err := uc.querier.GetUserByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return &pgstore.User{}, fmt.Errorf("User not found: %w", err)
+			return nil, fmt.Errorf("User not found: %w", err)
 		}
-		return &pgstore.User{}, fmt.Errorf("Unexpected error occured: %w", err)
+		return nil, fmt.Errorf("Unexpected error occured: %w", err)
 	}
 
-	return &user, nil
+	residences, err := uc.querier.GetResidencesByUserId(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch residences: %w", err)
+	}
+
+	memberships, err := uc.querier.GetUserMemberships(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch memberships: %w", err)
+	}
+
+	return &GetUserProfileRes{
+		User:        &user,
+		Residences:  &residences,
+		Memberships: &memberships,
+	}, nil
 }

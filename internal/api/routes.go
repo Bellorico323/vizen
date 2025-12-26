@@ -91,6 +91,9 @@ func (api *Api) BindRoutes() {
 					r.Post("/approve", api.ApproveAccessRequestController.Handle)
 					r.Post("/reject", api.RejectAccessRequestController.Handle)
 				})
+				r.Route("/announcements", func(r chi.Router) {
+					r.Post("/", api.CreateAnnouncementController.Handle)
+				})
 			})
 		})
 	})

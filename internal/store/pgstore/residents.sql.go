@@ -41,3 +41,85 @@ func (q *Queries) CreateResident(ctx context.Context, arg CreateResidentParams) 
 	)
 	return err
 }
+
+const getCondoResidentsTokens = `-- name: GetCondoResidentsTokens :many
+SELECT DISTINCT d.fcm_token
+FROM user_devices d
+JOIN residents r ON r.user_id = d.user_id
+WHERE r.apartment_id IN (
+    SELECT id FROM apartments WHERE condominium_id = $1
+)
+`
+
+func (q *Queries) GetCondoResidentsTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error) {
+	rows, err := q.db.Query(ctx, getCondoResidentsTokens, condominiumID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var fcm_token string
+		if err := rows.Scan(&fcm_token); err != nil {
+			return nil, err
+		}
+		items = append(items, fcm_token)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getResidencesByUserId = `-- name: GetResidencesByUserId :many
+SELECT
+  r.type as resident_type,
+  r.is_responsible,
+  a.id as apartment_id,
+  a.block,
+  a.number as apartement_number,
+  c.id as condominium_id,
+  c.name as condominium_name
+FROM residents r
+JOIN apartments a ON a.id = r.apartment_id
+JOIN condominiums c ON c.id = a.condominium_id
+WHERE r.user_id = $1
+`
+
+type GetResidencesByUserIdRow struct {
+	ResidentType     string    `json:"resident_type"`
+	IsResponsible    bool      `json:"is_responsible"`
+	ApartmentID      uuid.UUID `json:"apartment_id"`
+	Block            *string   `json:"block"`
+	ApartementNumber string    `json:"apartement_number"`
+	CondominiumID    uuid.UUID `json:"condominium_id"`
+	CondominiumName  string    `json:"condominium_name"`
+}
+
+func (q *Queries) GetResidencesByUserId(ctx context.Context, userID uuid.UUID) ([]GetResidencesByUserIdRow, error) {
+	rows, err := q.db.Query(ctx, getResidencesByUserId, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetResidencesByUserIdRow
+	for rows.Next() {
+		var i GetResidencesByUserIdRow
+		if err := rows.Scan(
+			&i.ResidentType,
+			&i.IsResponsible,
+			&i.ApartmentID,
+			&i.Block,
+			&i.ApartementNumber,
+			&i.CondominiumID,
+			&i.CondominiumName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -41,6 +41,16 @@ type Account struct {
 	UpdatedAt             *time.Time `json:"updated_at"`
 }
 
+type Announcement struct {
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	AuthorID      *uuid.UUID `json:"author_id"`
+	Title         string     `json:"title"`
+	Content       string     `json:"content"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+}
+
 type Apartment struct {
 	ID            uuid.UUID  `json:"id"`
 	CondominiumID uuid.UUID  `json:"condominium_id"`

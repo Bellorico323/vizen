@@ -21,4 +21,5 @@ type Api struct {
 	ApproveAccessRequestController *controllers.ApproveAccessRequestHandler
 	RejectAccessRequestController  *controllers.RejectAccessRequestHandler
 	RegisterDeviceController       *controllers.RegisterDeviceHandler
+	CreateAnnouncementController   *controllers.CreateAnnouncementHandler
 }

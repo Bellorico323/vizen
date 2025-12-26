@@ -53,3 +53,39 @@ func (q *Queries) GetCondominiumMemberRole(ctx context.Context, arg GetCondomini
 	err := row.Scan(&role)
 	return role, err
 }
+
+const getUserMemberships = `-- name: GetUserMemberships :many
+SELECT
+  m.role,
+  c.id as condominium_id,
+  c.name as condominium_name
+FROM condominium_members m
+JOIN condominiums c ON c.id = m.condominium_id
+WHERE user_id = $1
+`
+
+type GetUserMembershipsRow struct {
+	Role            string    `json:"role"`
+	CondominiumID   uuid.UUID `json:"condominium_id"`
+	CondominiumName string    `json:"condominium_name"`
+}
+
+func (q *Queries) GetUserMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserMembershipsRow, error) {
+	rows, err := q.db.Query(ctx, getUserMemberships, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserMembershipsRow
+	for rows.Next() {
+		var i GetUserMembershipsRow
+		if err := rows.Scan(&i.Role, &i.CondominiumID, &i.CondominiumName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
