@@ -22,4 +22,5 @@ type Api struct {
 	RejectAccessRequestController  *controllers.RejectAccessRequestHandler
 	RegisterDeviceController       *controllers.RegisterDeviceHandler
 	CreateAnnouncementController   *controllers.CreateAnnouncementHandler
+	ListAnnouncementsController    *controllers.ListAnnouncementsHandler
 }

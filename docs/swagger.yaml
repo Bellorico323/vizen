@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  api_controllers.AnnouncementResponse:
+    properties:
+      authorName:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    type: object
   api_controllers.ApproveAccessRequestReq:
     properties:
       accessRequestId:
@@ -37,6 +50,19 @@ definitions:
         type: string
       requestId:
         type: string
+    type: object
+  api_controllers.CreateAnnouncementRequest:
+    properties:
+      condominiumId:
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+    required:
+    - condominiumId
+    - content
+    - title
     type: object
   api_controllers.CreateApartmentRequest:
     properties:
@@ -85,6 +111,16 @@ definitions:
       message:
         type: string
     type: object
+  api_controllers.MembershipResponse:
+    properties:
+      condominiumId:
+        type: string
+      condominiumName:
+        type: string
+      role:
+        description: admin, syndic
+        type: string
+    type: object
   api_controllers.RefreshTokenRequest:
     properties:
       refreshToken:
@@ -120,6 +156,23 @@ definitions:
   api_controllers.RejectAccessRequestResponse:
     properties:
       message:
+        type: string
+    type: object
+  api_controllers.ResidenceResponse:
+    properties:
+      block:
+        type: string
+      condominiumId:
+        type: string
+      condominiumName:
+        type: string
+      isResponsible:
+        description: Pode abrir chamados?
+        type: boolean
+      number:
+        type: string
+      type:
+        description: owner, tenant
         type: string
     type: object
   api_controllers.SigninResponse:
@@ -167,6 +220,25 @@ definitions:
       userId:
         type: string
     type: object
+  api_controllers.UserProfileResponse:
+    properties:
+      avatarUrl:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      memberships:
+        items:
+          $ref: '#/definitions/api_controllers.MembershipResponse'
+        type: array
+      name:
+        type: string
+      residences:
+        items:
+          $ref: '#/definitions/api_controllers.ResidenceResponse'
+        type: array
+    type: object
   github_com_Bellorico323_vizen_internal_api_common.ErrResponse:
     properties:
       message:
@@ -185,62 +257,6 @@ definitions:
         type: array
       message:
         type: string
-    type: object
-  github_com_Bellorico323_vizen_internal_store_pgstore.GetResidencesByUserIdRow:
-    properties:
-      apartement_number:
-        type: string
-      apartment_id:
-        type: string
-      block:
-        type: string
-      condominium_id:
-        type: string
-      condominium_name:
-        type: string
-      is_responsible:
-        type: boolean
-      resident_type:
-        type: string
-    type: object
-  github_com_Bellorico323_vizen_internal_store_pgstore.GetUserMembershipsRow:
-    properties:
-      condominium_id:
-        type: string
-      condominium_name:
-        type: string
-      role:
-        type: string
-    type: object
-  github_com_Bellorico323_vizen_internal_store_pgstore.User:
-    properties:
-      avatar_url:
-        type: string
-      created_at:
-        type: string
-      email:
-        type: string
-      email_verified:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  usecases.GetUserProfileRes:
-    properties:
-      memberships:
-        items:
-          $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetUserMembershipsRow'
-        type: array
-      residences:
-        items:
-          $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetResidencesByUserIdRow'
-        type: array
-      user:
-        $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.User'
     type: object
   validator.ErrorResponse:
     properties:
@@ -404,6 +420,93 @@ paths:
       summary: Reject Access Request
       tags:
       - Access Requests
+  /announcements:
+    get:
+      description: Get a paginated list of announcements for a specific condominium.
+      parameters:
+      - description: Condominium UUID
+        in: query
+        name: condominiumId
+        required: true
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 10)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api_controllers.AnnouncementResponse'
+            type: array
+        "400":
+          description: Invalid UUID or parameters
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List Announcements
+      tags:
+      - Announcements
+    post:
+      consumes:
+      - application/json
+      description: Creates a new announcement for a condominium and sends push notifications
+        to all residents.
+      parameters:
+      - description: Announcement payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateAnnouncementRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Announcement created successfully
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.SuccessResponse'
+        "400":
+          description: Invalid JSON or Empty fields
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: User does not have permission (Must be Admin/Syndic)
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Announcement
+      tags:
+      - Announcements
   /apartments:
     post:
       consumes:
@@ -622,7 +725,7 @@ paths:
         "200":
           description: User profile details
           schema:
-            $ref: '#/definitions/usecases.GetUserProfileRes'
+            $ref: '#/definitions/api_controllers.UserProfileResponse'
         "401":
           description: Unauthorized / Invalid Token
           schema:

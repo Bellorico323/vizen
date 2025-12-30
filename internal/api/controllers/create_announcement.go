@@ -30,7 +30,7 @@ type CreateAnnouncementRequest struct {
 // @Accept			json
 // @Produce			json
 // @Param			request body controllers.CreateAnnouncementRequest true "Announcement payload"
-// @Success			201 {object} controllers.CreateAnnouncementResponse "Announcement created successfully"
+// @Success			201 {object} common.SuccessResponse "Announcement created successfully"
 // @Failure 		400	{object} common.ErrResponse "Invalid JSON or Empty fields"
 // @Failure			401 {object} common.ErrResponse "User not authenticated"
 // @Failure			403 {object} common.ErrResponse "User does not have permission (Must be Admin/Syndic)"

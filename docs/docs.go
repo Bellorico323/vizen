@@ -244,6 +244,140 @@ const docTemplate = `{
                 }
             }
         },
+        "/announcements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a paginated list of announcements for a specific condominium.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcements"
+                ],
+                "summary": "List Announcements",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID",
+                        "name": "condominiumId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 10)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api_controllers.AnnouncementResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID or parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new announcement for a condominium and sends push notifications to all residents.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Announcements"
+                ],
+                "summary": "Create Announcement",
+                "parameters": [
+                    {
+                        "description": "Announcement payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateAnnouncementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Announcement created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Empty fields",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "User does not have permission (Must be Admin/Syndic)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apartments": {
             "post": {
                 "security": [
@@ -584,7 +718,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User profile details",
                         "schema": {
-                            "$ref": "#/definitions/usecases.GetUserProfileRes"
+                            "$ref": "#/definitions/api_controllers.UserProfileResponse"
                         }
                     },
                     "401": {
@@ -668,6 +802,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api_controllers.AnnouncementResponse": {
+            "type": "object",
+            "properties": {
+                "authorName": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.ApproveAccessRequestReq": {
             "type": "object",
             "required": [
@@ -721,6 +875,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "requestId": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.CreateAnnouncementRequest": {
+            "type": "object",
+            "required": [
+                "condominiumId",
+                "content",
+                "title"
+            ],
+            "properties": {
+                "condominiumId": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -794,6 +967,21 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.MembershipResponse": {
+            "type": "object",
+            "properties": {
+                "condominiumId": {
+                    "type": "string"
+                },
+                "condominiumName": {
+                    "type": "string"
+                },
+                "role": {
+                    "description": "admin, syndic",
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.RefreshTokenRequest": {
             "type": "object",
             "properties": {
@@ -847,6 +1035,31 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.ResidenceResponse": {
+            "type": "object",
+            "properties": {
+                "block": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "condominiumName": {
+                    "type": "string"
+                },
+                "isResponsible": {
+                    "description": "Pode abrir chamados?",
+                    "type": "boolean"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "owner, tenant",
                     "type": "string"
                 }
             }
@@ -917,6 +1130,35 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.UserProfileResponse": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "memberships": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api_controllers.MembershipResponse"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "residences": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api_controllers.ResidenceResponse"
+                    }
+                }
+            }
+        },
         "github_com_Bellorico323_vizen_internal_api_common.ErrResponse": {
             "type": "object",
             "properties": {
@@ -944,92 +1186,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_Bellorico323_vizen_internal_store_pgstore.GetResidencesByUserIdRow": {
-            "type": "object",
-            "properties": {
-                "apartement_number": {
-                    "type": "string"
-                },
-                "apartment_id": {
-                    "type": "string"
-                },
-                "block": {
-                    "type": "string"
-                },
-                "condominium_id": {
-                    "type": "string"
-                },
-                "condominium_name": {
-                    "type": "string"
-                },
-                "is_responsible": {
-                    "type": "boolean"
-                },
-                "resident_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_Bellorico323_vizen_internal_store_pgstore.GetUserMembershipsRow": {
-            "type": "object",
-            "properties": {
-                "condominium_id": {
-                    "type": "string"
-                },
-                "condominium_name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_Bellorico323_vizen_internal_store_pgstore.User": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "usecases.GetUserProfileRes": {
-            "type": "object",
-            "properties": {
-                "memberships": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetUserMembershipsRow"
-                    }
-                },
-                "residences": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetResidencesByUserIdRow"
-                    }
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.User"
                 }
             }
         },

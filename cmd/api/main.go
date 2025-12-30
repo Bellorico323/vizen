@@ -116,6 +116,7 @@ func main() {
 	rejectAccessRequest := usecases.NewRejectAccessRequestUseCase(pool, notiService)
 	registerUserDevice := usecases.NewRegisterDeviceUseCase(queries)
 	createAnnouncement := usecases.NewCreateAnnouncementUseCase(queries, notiService)
+	listAnnouncements := usecases.NewListAnnouncementsUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -153,6 +154,9 @@ func main() {
 		},
 		CreateAnnouncementController: &controllers.CreateAnnouncementHandler{
 			CreateAnnouncement: createAnnouncement,
+		},
+		ListAnnouncementsController: &controllers.ListAnnouncementsHandler{
+			ListAnnouncements: listAnnouncements,
 		},
 	}
 

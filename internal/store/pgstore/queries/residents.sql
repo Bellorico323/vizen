@@ -32,3 +32,13 @@ JOIN residents r ON r.user_id = d.user_id
 WHERE r.apartment_id IN (
     SELECT id FROM apartments WHERE condominium_id = $1
 );
+
+-- name: CheckUserAccessToCondo :one
+SELECT EXISTS (
+    SELECT 1 FROM residents r
+    WHERE r.user_id = $1
+    AND r.apartment_id IN (SELECT a.id FROM apartments a WHERE a.condominium_id = $2)
+    UNION
+    SELECT 1 FROM condominium_members m
+    WHERE m.user_id = $1 AND m.condominium_id = $2
+);

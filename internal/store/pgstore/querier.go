@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	CheckUserAccessToCondo(ctx context.Context, arg CheckUserAccessToCondoParams) (bool, error)
 	CreateAccessRequest(ctx context.Context, arg CreateAccessRequestParams) (uuid.UUID, error)
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
 	CreateAnnouncement(ctx context.Context, arg CreateAnnouncementParams) (CreateAnnouncementRow, error)

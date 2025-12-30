@@ -11,6 +11,29 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkUserAccessToCondo = `-- name: CheckUserAccessToCondo :one
+SELECT EXISTS (
+    SELECT 1 FROM residents r
+    WHERE r.user_id = $1
+    AND r.apartment_id IN (SELECT a.id FROM apartments a WHERE a.condominium_id = $2)
+    UNION
+    SELECT 1 FROM condominium_members m
+    WHERE m.user_id = $1 AND m.condominium_id = $2
+)
+`
+
+type CheckUserAccessToCondoParams struct {
+	UserID        uuid.UUID `json:"user_id"`
+	CondominiumID uuid.UUID `json:"condominium_id"`
+}
+
+func (q *Queries) CheckUserAccessToCondo(ctx context.Context, arg CheckUserAccessToCondoParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserAccessToCondo, arg.UserID, arg.CondominiumID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createResident = `-- name: CreateResident :exec
 INSERT INTO residents (
   user_id,
