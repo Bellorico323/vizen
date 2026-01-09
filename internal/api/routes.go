@@ -94,6 +94,7 @@ func (api *Api) BindRoutes() {
 				r.Route("/announcements", func(r chi.Router) {
 					r.Post("/", api.CreateAnnouncementController.Handle)
 					r.Get("/", api.ListAnnouncementsController.Handle)
+					r.Delete("/{id}", api.DeleteAnnouncementController.Handle)
 				})
 			})
 		})

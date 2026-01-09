@@ -23,4 +23,5 @@ type Api struct {
 	RegisterDeviceController       *controllers.RegisterDeviceHandler
 	CreateAnnouncementController   *controllers.CreateAnnouncementHandler
 	ListAnnouncementsController    *controllers.ListAnnouncementsHandler
+	DeleteAnnouncementController   *controllers.DeleteAnnouncementHandler
 }
