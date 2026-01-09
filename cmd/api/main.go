@@ -109,6 +109,7 @@ func main() {
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(queries, tokenService)
 	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
 	getUserProfile := usecases.NewGetUserProfileUseCase(queries)
+	listUserCondominiums := usecases.NewListUserCondominiumsUseCase(queries)
 	createCondominium := usecases.NewCreateCondominiumUseCase(pool)
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
 	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries, notiService)
@@ -134,6 +135,9 @@ func main() {
 		},
 		UsersController: &controllers.UsersController{
 			GetUserProfile: getUserProfile,
+		},
+		ListUserCondominiusController: &controllers.ListUserCondominiumsHandler{
+			ListUserCondominiums: listUserCondominiums,
 		},
 		CreateCondominiumController: &controllers.CreateCondominiumHandler{
 			CreateCondominium: createCondominium,

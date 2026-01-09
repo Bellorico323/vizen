@@ -258,6 +258,19 @@ definitions:
       message:
         type: string
     type: object
+  usecases.UserCondominiumDTO:
+    properties:
+      address:
+        type: string
+      cnpj:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
   validator.ErrorResponse:
     properties:
       field:
@@ -721,6 +734,32 @@ paths:
       summary: Create User
       tags:
       - Auth
+  /users/condominiums:
+    get:
+      description: Returns all condominiums the user is part of, sorted by role (Syndic
+        > Admin > Resident).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/usecases.UserCondominiumDTO'
+            type: array
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List User Condominiums
+      tags:
+      - Users
   /users/devices:
     post:
       consumes:

@@ -88,3 +88,66 @@ func (q *Queries) GetCondominiumById(ctx context.Context, id uuid.UUID) (Condomi
 	)
 	return i, err
 }
+
+const listCondominiunsByUserId = `-- name: ListCondominiunsByUserId :many
+SELECT
+  c.id,
+  c.name,
+  c.cnpj,
+  c.address,
+  m.role::text as role_name,
+  1 as priority
+FROM condominium_members m
+JOIN condominiums c ON c.id = m.condominium_id
+WHERE m.user_id = $1
+
+UNION ALL
+
+SELECT
+  c.id,
+  c.name,
+  c.cnpj,
+  c.address,
+  r.type as role_name,
+  2 as priority
+FROM residents r
+JOIN apartments a ON a.id = r.apartment_id
+JOIN condominiums c ON c.id = a.condominium_id
+WHERE r.user_id = $1
+`
+
+type ListCondominiunsByUserIdRow struct {
+	ID       uuid.UUID `json:"id"`
+	Name     string    `json:"name"`
+	Cnpj     string    `json:"cnpj"`
+	Address  string    `json:"address"`
+	RoleName string    `json:"role_name"`
+	Priority int32     `json:"priority"`
+}
+
+func (q *Queries) ListCondominiunsByUserId(ctx context.Context, userID uuid.UUID) ([]ListCondominiunsByUserIdRow, error) {
+	rows, err := q.db.Query(ctx, listCondominiunsByUserId, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCondominiunsByUserIdRow
+	for rows.Next() {
+		var i ListCondominiunsByUserIdRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Cnpj,
+			&i.Address,
+			&i.RoleName,
+			&i.Priority,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

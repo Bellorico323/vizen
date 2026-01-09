@@ -68,6 +68,7 @@ func (api *Api) BindRoutes() {
 				r.Group(func(r chi.Router) {
 					r.Use(authMiddleware)
 					r.Get("/me", api.UsersController.Handle)
+					r.Get("/condominiums", api.ListUserCondominiusController.Handle)
 					r.Post("/devices", api.RegisterDeviceController.Handle)
 				})
 			})

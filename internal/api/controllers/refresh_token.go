@@ -92,7 +92,7 @@ func (h *RefreshTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		Value:    tokens.RefreshToken,
 		HttpOnly: true,
 		Secure:   false, // true em prod
-		Path:     "/api/v1/auth",
+		Path:     "/",
 		MaxAge:   7 * 24 * 60 * 60, // 7 days
 		SameSite: http.SameSiteStrictMode,
 	})
