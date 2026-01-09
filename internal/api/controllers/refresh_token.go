@@ -63,7 +63,7 @@ func (h *RefreshTokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &http.Cookie{
 				Name:   "refresh_token",
 				Value:  "",
-				Path:   "/api/v1/auth",
+				Path:   "/",
 				MaxAge: -1,
 			})
 
