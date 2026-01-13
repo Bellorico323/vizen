@@ -26,6 +26,7 @@ type Querier interface {
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
 	GetAnnouncementById(ctx context.Context, id uuid.UUID) (Announcement, error)
 	GetApartmentById(ctx context.Context, id uuid.UUID) (Apartment, error)
+	GetApartmentsByUserId(ctx context.Context, arg GetApartmentsByUserIdParams) ([]GetApartmentsByUserIdRow, error)
 	GetCondoAdminTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondoResidentsTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)

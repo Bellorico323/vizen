@@ -220,6 +220,23 @@ definitions:
       userId:
         type: string
     type: object
+  api_controllers.UserApartmentResponse:
+    properties:
+      apartmentId:
+        type: string
+      block:
+        type: string
+      condominiumId:
+        type: string
+      condominiumName:
+        type: string
+      isResponsible:
+        type: boolean
+      number:
+        type: string
+      type:
+        type: string
+    type: object
   api_controllers.UserProfileResponse:
     properties:
       avatarUrl:
@@ -734,6 +751,41 @@ paths:
       summary: Create User
       tags:
       - Auth
+  /users/apartments:
+    get:
+      description: Get all apartments belonging to the authenticated user. Optionally
+        filter by condominium.
+      parameters:
+      - description: Condominium UUID (Optional)
+        in: query
+        name: condominiumId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api_controllers.UserApartmentResponse'
+            type: array
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List User Apartments
+      tags:
+      - Users
   /users/condominiums:
     get:
       description: Returns all condominiums the user is part of, sorted by role (Syndic

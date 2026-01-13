@@ -707,6 +707,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/apartments": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all apartments belonging to the authenticated user. Optionally filter by condominium.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "List User Apartments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID (Optional)",
+                        "name": "condominiumId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api_controllers.UserApartmentResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/condominiums": {
             "get": {
                 "security": [
@@ -1230,6 +1284,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.UserApartmentResponse": {
+            "type": "object",
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "condominiumName": {
+                    "type": "string"
+                },
+                "isResponsible": {
+                    "type": "boolean"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }

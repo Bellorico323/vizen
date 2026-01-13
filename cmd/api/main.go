@@ -111,6 +111,7 @@ func main() {
 	getUserProfile := usecases.NewGetUserProfileUseCase(queries)
 	listUserCondominiums := usecases.NewListUserCondominiumsUseCase(queries)
 	createCondominium := usecases.NewCreateCondominiumUseCase(pool)
+	listUserApartments := usecases.NewListUserApartmentsUseCase(queries)
 	createApartment := usecases.NewCreateApartmentUseCase(queries)
 	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries, notiService)
 	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool, notiService)
@@ -141,6 +142,9 @@ func main() {
 		},
 		CreateCondominiumController: &controllers.CreateCondominiumHandler{
 			CreateCondominium: createCondominium,
+		},
+		ListUserApartmentsController: &controllers.ListUserApartmentsHandler{
+			ListUserApartments: listUserApartments,
 		},
 		CreateApartmentController: &controllers.CreateApartmentHandler{
 			CreateApartment: createApartment,
