@@ -11,19 +11,20 @@ type Api struct {
 	TokenService *auth.TokenService
 
 	// Controllers
-	SignupController               *controllers.SignupHandler
-	SigninController               *controllers.SigninHandler
-	UsersController                *controllers.UsersController
-	RefreshTokenController         *controllers.RefreshTokenHandler
-	CreateCondominiumController    *controllers.CreateCondominiumHandler
-	ListUserCondominiusController  *controllers.ListUserCondominiumsHandler
-	CreateApartmentController      *controllers.CreateApartmentHandler
-	ListUserApartmentsController   *controllers.ListUserApartmentsHandler
-	CreateAccessRequestController  *controllers.CreateAccessRequestHandler
-	ApproveAccessRequestController *controllers.ApproveAccessRequestHandler
-	RejectAccessRequestController  *controllers.RejectAccessRequestHandler
-	RegisterDeviceController       *controllers.RegisterDeviceHandler
-	CreateAnnouncementController   *controllers.CreateAnnouncementHandler
-	ListAnnouncementsController    *controllers.ListAnnouncementsHandler
-	DeleteAnnouncementController   *controllers.DeleteAnnouncementHandler
+	SignupController                    *controllers.SignupHandler
+	SigninController                    *controllers.SigninHandler
+	UsersController                     *controllers.UsersController
+	RefreshTokenController              *controllers.RefreshTokenHandler
+	CreateCondominiumController         *controllers.CreateCondominiumHandler
+	ListUserCondominiusController       *controllers.ListUserCondominiumsHandler
+	CreateApartmentController           *controllers.CreateApartmentHandler
+	ListUserApartmentsController        *controllers.ListUserApartmentsHandler
+	CreateAccessRequestController       *controllers.CreateAccessRequestHandler
+	ApproveAccessRequestController      *controllers.ApproveAccessRequestHandler
+	RejectAccessRequestController       *controllers.RejectAccessRequestHandler
+	ListPendingAccessRequestsController *controllers.ListPendingAccessRequestHandler
+	RegisterDeviceController            *controllers.RegisterDeviceHandler
+	CreateAnnouncementController        *controllers.CreateAnnouncementHandler
+	ListAnnouncementsController         *controllers.ListAnnouncementsHandler
+	DeleteAnnouncementController        *controllers.DeleteAnnouncementHandler
 }

@@ -116,6 +116,7 @@ func main() {
 	createAccessRequest := usecases.NewCreateAccessRequestUseCase(queries, notiService)
 	approveAccessRequest := usecases.NewApproveAccessRequestUseCase(pool, notiService)
 	rejectAccessRequest := usecases.NewRejectAccessRequestUseCase(pool, notiService)
+	listPendingAccessRequests := usecases.NewListPendingAccessRequestsUseCase(queries)
 	registerUserDevice := usecases.NewRegisterDeviceUseCase(queries)
 	createAnnouncement := usecases.NewCreateAnnouncementUseCase(queries, notiService)
 	listAnnouncements := usecases.NewListAnnouncementsUseCase(queries)
@@ -157,6 +158,9 @@ func main() {
 		},
 		RejectAccessRequestController: &controllers.RejectAccessRequestHandler{
 			RejectAccessRequest: rejectAccessRequest,
+		},
+		ListPendingAccessRequestsController: &controllers.ListPendingAccessRequestHandler{
+			ListPendingAccessRequests: listPendingAccessRequests,
 		},
 		RegisterDeviceController: &controllers.RegisterDeviceHandler{
 			RegisterDevice: *registerUserDevice,

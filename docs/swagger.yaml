@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  api_controllers.AccessRequestResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      userEmail:
+        type: string
+      userName:
+        type: string
+    type: object
   api_controllers.AnnouncementResponse:
     properties:
       authorName:
@@ -400,6 +413,45 @@ paths:
       security:
       - BearerAuth: []
       summary: Approve Access Request
+      tags:
+      - Access Requests
+  /access-requests/pending:
+    get:
+      description: Returns all pending requests for a condominium. Only for Admins/Syndics.
+      parameters:
+      - description: Condominium UUID
+        in: query
+        name: condominiumId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api_controllers.AccessRequestResponse'
+            type: array
+        "400":
+          description: Invalid UUID
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List Pending Access Requests
       tags:
       - Access Requests
   /access-requests/reject:
