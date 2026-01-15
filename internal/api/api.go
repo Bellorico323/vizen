@@ -27,4 +27,7 @@ type Api struct {
 	CreateAnnouncementController        *controllers.CreateAnnouncementHandler
 	ListAnnouncementsController         *controllers.ListAnnouncementsHandler
 	DeleteAnnouncementController        *controllers.DeleteAnnouncementHandler
+	CreatePackageController             *controllers.CreatePackageHandler
+	GetPackageController                *controllers.GetPackageHandler
+	ListPackagesController              *controllers.ListPackagesHandler
 }

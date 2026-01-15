@@ -121,6 +121,9 @@ func main() {
 	createAnnouncement := usecases.NewCreateAnnouncementUseCase(queries, notiService)
 	listAnnouncements := usecases.NewListAnnouncementsUseCase(queries)
 	deleteAnnouncement := usecases.NewDeleteAnnouncementUseCase(queries)
+	createPackage := usecases.NewCreatePackageUseCase(queries, notiService)
+	getPackage := usecases.NewGetPackageUseCase(queries)
+	listPackages := usecases.NewListPackagesUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -173,6 +176,15 @@ func main() {
 		},
 		DeleteAnnouncementController: &controllers.DeleteAnnouncementHandler{
 			DeleteAnnouncement: deleteAnnouncement,
+		},
+		CreatePackageController: &controllers.CreatePackageHandler{
+			CreatePackage: createPackage,
+		},
+		GetPackageController: &controllers.GetPackageHandler{
+			GetPackage: getPackage,
+		},
+		ListPackagesController: &controllers.ListPackagesHandler{
+			ListPackages: listPackages,
 		},
 	}
 

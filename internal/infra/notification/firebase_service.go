@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -14,6 +15,10 @@ type FirebaseService struct {
 	client  *messaging.Client
 	querier pgstore.Querier
 }
+
+var (
+	ErrSendNotification = errors.New("Failed to send notification")
+)
 
 func NewFireBaseService(client *messaging.Client, q pgstore.Querier) *FirebaseService {
 	return &FirebaseService{client: client, querier: q}
@@ -83,6 +88,23 @@ func (s *FirebaseService) SendToCondoResidents(ctx context.Context, condoID uuid
 	}
 
 	return s.sendChunks(ctx, tokens, title, body, nil)
+}
+
+func (s *FirebaseService) SendToApartmentResidents(ctx context.Context, apartmentID, packageID uuid.UUID, title, body string) error {
+	tokens, err := s.querier.GetManyTokensByApartmentId(ctx, apartmentID)
+	if err != nil {
+		slog.Error("Failed to fetch resident tokens for notification", "error", err)
+		return nil
+	}
+
+	if len(tokens) == 0 {
+		return nil
+	}
+
+	return s.sendChunks(ctx, tokens, title, body, map[string]string{
+		"type":      "PACKAGE_ARRIVED",
+		"packageId": packageID.String(),
+	})
 }
 
 func (s *FirebaseService) sendChunks(ctx context.Context, tokens []string, title, body string, data map[string]string) error {

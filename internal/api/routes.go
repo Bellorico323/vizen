@@ -99,6 +99,11 @@ func (api *Api) BindRoutes() {
 					r.Get("/", api.ListAnnouncementsController.Handle)
 					r.Delete("/{id}", api.DeleteAnnouncementController.Handle)
 				})
+				r.Route("/packages", func(r chi.Router) {
+					r.Post("/", api.CreatePackageController.Handle)
+					r.Get("/{id}", api.GetPackageController.Handle)
+					r.Get("/", api.ListPackagesController.Handle)
+				})
 			})
 		})
 	})

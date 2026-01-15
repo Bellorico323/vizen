@@ -39,6 +39,33 @@ func (q *Queries) GetCondoAdminTokens(ctx context.Context, condominiumID uuid.UU
 	return items, nil
 }
 
+const getManyTokensByApartmentId = `-- name: GetManyTokensByApartmentId :many
+SELECT d.fcm_token
+FROM residents r
+JOIN user_devices d ON d.user_id = r.user_id
+WHERE r.apartment_id = $1
+`
+
+func (q *Queries) GetManyTokensByApartmentId(ctx context.Context, apartmentID uuid.UUID) ([]string, error) {
+	rows, err := q.db.Query(ctx, getManyTokensByApartmentId, apartmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var fcm_token string
+		if err := rows.Scan(&fcm_token); err != nil {
+			return nil, err
+		}
+		items = append(items, fcm_token)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserDeviceTokens = `-- name: GetUserDeviceTokens :many
 SELECT
   fcm_token

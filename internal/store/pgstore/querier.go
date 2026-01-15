@@ -18,6 +18,7 @@ type Querier interface {
 	CreateApartment(ctx context.Context, arg CreateApartmentParams) (uuid.UUID, error)
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
 	CreateCondominiumMember(ctx context.Context, arg CreateCondominiumMemberParams) error
+	CreatePackage(ctx context.Context, arg CreatePackageParams) (Package, error)
 	CreateResident(ctx context.Context, arg CreateResidentParams) error
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
@@ -33,6 +34,8 @@ type Querier interface {
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
 	GetCondominiumMemberRole(ctx context.Context, arg GetCondominiumMemberRoleParams) (string, error)
 	GetManyAnnouncementsByCondoId(ctx context.Context, arg GetManyAnnouncementsByCondoIdParams) ([]GetManyAnnouncementsByCondoIdRow, error)
+	GetManyTokensByApartmentId(ctx context.Context, apartmentID uuid.UUID) ([]string, error)
+	GetPackageById(ctx context.Context, id uuid.UUID) (GetPackageByIdRow, error)
 	GetResidencesByUserId(ctx context.Context, userID uuid.UUID) ([]GetResidencesByUserIdRow, error)
 	GetSessionByToken(ctx context.Context, token string) (Session, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
@@ -40,10 +43,13 @@ type Querier interface {
 	GetUserDeviceTokens(ctx context.Context, userID uuid.UUID) ([]string, error)
 	GetUserMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserMembershipsRow, error)
 	ListCondominiunsByUserId(ctx context.Context, userID uuid.UUID) ([]ListCondominiunsByUserIdRow, error)
+	ListPackagesByApartment(ctx context.Context, arg ListPackagesByApartmentParams) ([]ListPackagesByApartmentRow, error)
+	ListPackagesByCondominium(ctx context.Context, arg ListPackagesByCondominiumParams) ([]ListPackagesByCondominiumRow, error)
 	ListPendingRequestsByCondo(ctx context.Context, condominiumID uuid.UUID) ([]ListPendingRequestsByCondoRow, error)
 	SaveUserDevice(ctx context.Context, arg SaveUserDeviceParams) error
 	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
 	UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) error
+	UpdatePackageToWithdrawn(ctx context.Context, arg UpdatePackageToWithdrawnParams) (Package, error)
 	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }
 

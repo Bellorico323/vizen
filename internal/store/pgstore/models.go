@@ -91,6 +91,19 @@ type CondominiumMember struct {
 	UpdatedAt     *time.Time `json:"updated_at"`
 }
 
+type Package struct {
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	ApartmentID   uuid.UUID  `json:"apartment_id"`
+	ReceivedBy    uuid.UUID  `json:"received_by"`
+	ReceivedAt    time.Time  `json:"received_at"`
+	RecipientName *string    `json:"recipient_name"`
+	PhotoUrl      *string    `json:"photo_url"`
+	Status        string     `json:"status"`
+	WithdrawnAt   *time.Time `json:"withdrawn_at"`
+	WithdrawnBy   *uuid.UUID `json:"withdrawn_by"`
+}
+
 type Resident struct {
 	ID            uuid.UUID `json:"id"`
 	UserID        uuid.UUID `json:"user_id"`

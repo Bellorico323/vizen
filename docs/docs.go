@@ -710,6 +710,216 @@ const docTemplate = `{
                 }
             }
         },
+        "/packages": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of packages. Admins can view all packages for a condominium. Residents must filter by their apartment ID to view their packages.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Packages"
+                ],
+                "summary": "List Packages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID",
+                        "name": "condominiumId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Apartment UUID (Mandatory for Residents)",
+                        "name": "apartmentId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (pending, withdrawn)",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/usecases.PackageListItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Registers a new package arrival at the concierge. Triggers a push notification to the apartment residents.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Packages"
+                ],
+                "summary": "Register new package",
+                "parameters": [
+                    {
+                        "description": "Package Creation Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreatePackageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreatePackageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON payload",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Condominium or Apartment not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/packages/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed information about a package. Admins/Syndics can view any package; Residents can only view packages for their apartments.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Packages"
+                ],
+                "summary": "Get Package Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Package UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.GetPackageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Package not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "post": {
                 "description": "Creates an user and account with credentials",
@@ -1206,6 +1416,82 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.CreatePackageRequest": {
+            "type": "object",
+            "required": [
+                "apartmentId",
+                "condominiumId"
+            ],
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string"
+                },
+                "recipientName": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.CreatePackageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "packageId": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.GetPackageResponse": {
+            "type": "object",
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "apartmentNumber": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string"
+                },
+                "receivedAt": {
+                    "type": "string"
+                },
+                "receivedBy": {
+                    "type": "string"
+                },
+                "receivedByName": {
+                    "type": "string"
+                },
+                "recipientName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "withdrawnAt": {
+                    "type": "string"
+                },
+                "withdrawnBy": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.MembershipResponse": {
             "type": "object",
             "properties": {
@@ -1450,6 +1736,35 @@ const docTemplate = `{
                     }
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecases.PackageListItem": {
+            "type": "object",
+            "properties": {
+                "apartmentNumber": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string"
+                },
+                "receivedAt": {
+                    "type": "string"
+                },
+                "receivedByName": {
+                    "type": "string"
+                },
+                "recipientName": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
