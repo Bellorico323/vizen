@@ -30,4 +30,5 @@ type Api struct {
 	CreatePackageController             *controllers.CreatePackageHandler
 	GetPackageController                *controllers.GetPackageHandler
 	ListPackagesController              *controllers.ListPackagesHandler
+	WithdrawPackageController           *controllers.WithdrawPackageHandler
 }

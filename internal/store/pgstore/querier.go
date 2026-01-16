@@ -49,7 +49,7 @@ type Querier interface {
 	SaveUserDevice(ctx context.Context, arg SaveUserDeviceParams) error
 	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
 	UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) error
-	UpdatePackageToWithdrawn(ctx context.Context, arg UpdatePackageToWithdrawnParams) (Package, error)
+	UpdatePackageToWithdrawn(ctx context.Context, arg UpdatePackageToWithdrawnParams) error
 	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }
 

@@ -124,6 +124,7 @@ func main() {
 	createPackage := usecases.NewCreatePackageUseCase(queries, notiService)
 	getPackage := usecases.NewGetPackageUseCase(queries)
 	listPackages := usecases.NewListPackagesUseCase(queries)
+	withdrawPackage := usecases.NewWithdrawPackageUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -185,6 +186,9 @@ func main() {
 		},
 		ListPackagesController: &controllers.ListPackagesHandler{
 			ListPackages: listPackages,
+		},
+		WithdrawPackageController: &controllers.WithdrawPackageHandler{
+			WithdrawPackage: withdrawPackage,
 		},
 	}
 

@@ -15,7 +15,7 @@ INSERT INTO packages (
   'pending'
 ) RETURNING *;
 
--- name: UpdatePackageToWithdrawn :one
+-- name: UpdatePackageToWithdrawn :exec
 UPDATE packages
 SET
   status = 'withdrawn',

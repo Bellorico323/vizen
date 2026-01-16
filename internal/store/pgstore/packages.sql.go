@@ -235,7 +235,7 @@ func (q *Queries) ListPackagesByCondominium(ctx context.Context, arg ListPackage
 	return items, nil
 }
 
-const updatePackageToWithdrawn = `-- name: UpdatePackageToWithdrawn :one
+const updatePackageToWithdrawn = `-- name: UpdatePackageToWithdrawn :exec
 UPDATE packages
 SET
   status = 'withdrawn',
@@ -250,20 +250,7 @@ type UpdatePackageToWithdrawnParams struct {
 	WithdrawnBy *uuid.UUID `json:"withdrawn_by"`
 }
 
-func (q *Queries) UpdatePackageToWithdrawn(ctx context.Context, arg UpdatePackageToWithdrawnParams) (Package, error) {
-	row := q.db.QueryRow(ctx, updatePackageToWithdrawn, arg.ID, arg.WithdrawnBy)
-	var i Package
-	err := row.Scan(
-		&i.ID,
-		&i.CondominiumID,
-		&i.ApartmentID,
-		&i.ReceivedBy,
-		&i.ReceivedAt,
-		&i.RecipientName,
-		&i.PhotoUrl,
-		&i.Status,
-		&i.WithdrawnAt,
-		&i.WithdrawnBy,
-	)
-	return i, err
+func (q *Queries) UpdatePackageToWithdrawn(ctx context.Context, arg UpdatePackageToWithdrawnParams) error {
+	_, err := q.db.Exec(ctx, updatePackageToWithdrawn, arg.ID, arg.WithdrawnBy)
+	return err
 }

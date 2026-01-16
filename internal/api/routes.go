@@ -103,6 +103,7 @@ func (api *Api) BindRoutes() {
 					r.Post("/", api.CreatePackageController.Handle)
 					r.Get("/{id}", api.GetPackageController.Handle)
 					r.Get("/", api.ListPackagesController.Handle)
+					r.Patch("/{id}/withdraw", api.WithdrawPackageController.Handle)
 				})
 			})
 		})
