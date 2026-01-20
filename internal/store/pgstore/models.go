@@ -12,6 +12,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AccessLog struct {
+	ID            uuid.UUID  `json:"id"`
+	InviteID      uuid.UUID  `json:"invite_id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	EnteredAt     time.Time  `json:"entered_at"`
+	AuthorizedBy  *uuid.UUID `json:"authorized_by"`
+}
+
 type AccessRequest struct {
 	ID            uuid.UUID  `json:"id"`
 	UserID        uuid.UUID  `json:"user_id"`
@@ -89,6 +97,20 @@ type CondominiumMember struct {
 	Role          string     `json:"role"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     *time.Time `json:"updated_at"`
+}
+
+type Invite struct {
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	ApartmentID   uuid.UUID  `json:"apartment_id"`
+	IssuedBy      uuid.UUID  `json:"issued_by"`
+	GuestName     string     `json:"guest_name"`
+	GuestType     string     `json:"guest_type"`
+	Token         uuid.UUID  `json:"token"`
+	StartsAt      time.Time  `json:"starts_at"`
+	EndsAt        time.Time  `json:"ends_at"`
+	RevokedAt     *time.Time `json:"revoked_at"`
+	CreatedAt     time.Time  `json:"created_at"`
 }
 
 type Package struct {

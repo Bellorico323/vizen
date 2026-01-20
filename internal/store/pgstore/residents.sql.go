@@ -11,6 +11,27 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkIsResident = `-- name: CheckIsResident :one
+SElECT EXISTS (
+  SELECT 1
+  FROM residents
+  WHERE user_id = $1
+  AND apartment_id = $2
+)
+`
+
+type CheckIsResidentParams struct {
+	UserID      uuid.UUID `json:"user_id"`
+	ApartmentID uuid.UUID `json:"apartment_id"`
+}
+
+func (q *Queries) CheckIsResident(ctx context.Context, arg CheckIsResidentParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkIsResident, arg.UserID, arg.ApartmentID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const checkUserAccessToCondo = `-- name: CheckUserAccessToCondo :one
 SELECT EXISTS (
     SELECT 1 FROM residents r

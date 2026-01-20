@@ -44,10 +44,10 @@ CREATE TABLE IF NOT EXISTS condominium_members (
 
 CREATE TABLE IF NOT EXISTS residents (
   id              UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  apartment_id UUID NOT NULL REFERENCES apartments(id) ON DELETE CASCADE,
-  type VARCHAR(25) NOT NULL CHECK(type IN ('owner', 'tenant', 'dependent')),
-  is_responsible BOOLEAN NOT NULL DEFAULT false,
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  apartment_id    UUID NOT NULL REFERENCES apartments(id) ON DELETE CASCADE,
+  type            VARCHAR(25) NOT NULL CHECK(type IN ('owner', 'tenant', 'dependent')),
+  is_responsible  BOOLEAN NOT NULL DEFAULT false,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   UNIQUE(user_id, apartment_id)

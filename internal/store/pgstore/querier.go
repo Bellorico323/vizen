@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	CheckIsResident(ctx context.Context, arg CheckIsResidentParams) (bool, error)
 	CheckUserAccessToCondo(ctx context.Context, arg CheckUserAccessToCondoParams) (bool, error)
 	CreateAccessRequest(ctx context.Context, arg CreateAccessRequestParams) (uuid.UUID, error)
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
@@ -18,6 +19,7 @@ type Querier interface {
 	CreateApartment(ctx context.Context, arg CreateApartmentParams) (uuid.UUID, error)
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
 	CreateCondominiumMember(ctx context.Context, arg CreateCondominiumMemberParams) error
+	CreateInvite(ctx context.Context, arg CreateInviteParams) (Invite, error)
 	CreatePackage(ctx context.Context, arg CreatePackageParams) (Package, error)
 	CreateResident(ctx context.Context, arg CreateResidentParams) error
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
@@ -33,6 +35,8 @@ type Querier interface {
 	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)
 	GetCondominiumById(ctx context.Context, id uuid.UUID) (Condominium, error)
 	GetCondominiumMemberRole(ctx context.Context, arg GetCondominiumMemberRoleParams) (string, error)
+	GetInviteById(ctx context.Context, id uuid.UUID) (Invite, error)
+	GetInviteByToken(ctx context.Context, token uuid.UUID) (GetInviteByTokenRow, error)
 	GetManyAnnouncementsByCondoId(ctx context.Context, arg GetManyAnnouncementsByCondoIdParams) ([]GetManyAnnouncementsByCondoIdRow, error)
 	GetManyTokensByApartmentId(ctx context.Context, apartmentID uuid.UUID) ([]string, error)
 	GetPackageById(ctx context.Context, id uuid.UUID) (GetPackageByIdRow, error)
@@ -43,9 +47,12 @@ type Querier interface {
 	GetUserDeviceTokens(ctx context.Context, userID uuid.UUID) ([]string, error)
 	GetUserMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserMembershipsRow, error)
 	ListCondominiunsByUserId(ctx context.Context, userID uuid.UUID) ([]ListCondominiunsByUserIdRow, error)
+	ListInvites(ctx context.Context, arg ListInvitesParams) ([]ListInvitesRow, error)
 	ListPackagesByApartment(ctx context.Context, arg ListPackagesByApartmentParams) ([]ListPackagesByApartmentRow, error)
 	ListPackagesByCondominium(ctx context.Context, arg ListPackagesByCondominiumParams) ([]ListPackagesByCondominiumRow, error)
 	ListPendingRequestsByCondo(ctx context.Context, condominiumID uuid.UUID) ([]ListPendingRequestsByCondoRow, error)
+	LogAccessEntry(ctx context.Context, arg LogAccessEntryParams) (AccessLog, error)
+	RevokeInvite(ctx context.Context, arg RevokeInviteParams) error
 	SaveUserDevice(ctx context.Context, arg SaveUserDeviceParams) error
 	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
 	UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) error

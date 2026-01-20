@@ -42,3 +42,11 @@ SELECT EXISTS (
     SELECT 1 FROM condominium_members m
     WHERE m.user_id = $1 AND m.condominium_id = $2
 );
+
+-- name: CheckIsResident :one
+SElECT EXISTS (
+  SELECT 1
+  FROM residents
+  WHERE user_id = $1
+  AND apartment_id = $2
+);

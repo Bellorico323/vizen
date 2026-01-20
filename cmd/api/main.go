@@ -125,6 +125,10 @@ func main() {
 	getPackage := usecases.NewGetPackageUseCase(queries)
 	listPackages := usecases.NewListPackagesUseCase(queries)
 	withdrawPackage := usecases.NewWithdrawPackageUseCase(queries)
+	createInvite := usecases.NewCreateInviteUseCase(queries)
+	validateInvite := usecases.NewValidateInviteUseCase(pool, notiService)
+	revokeInvite := usecases.NewRevokeInviteUseCase(queries)
+	listInvites := usecases.NewListInvitesUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -189,6 +193,18 @@ func main() {
 		},
 		WithdrawPackageController: &controllers.WithdrawPackageHandler{
 			WithdrawPackage: withdrawPackage,
+		},
+		CreateInviteController: &controllers.CreateInviteHandler{
+			CreateInvite: createInvite,
+		},
+		ValidateInviteController: &controllers.ValidateInviteHandler{
+			ValidateInvite: validateInvite,
+		},
+		RevokeInviteController: &controllers.RevokeInviteHandler{
+			RevokeInvite: revokeInvite,
+		},
+		ListInvitesController: &controllers.ListInvitesHandler{
+			ListInvites: listInvites,
 		},
 	}
 

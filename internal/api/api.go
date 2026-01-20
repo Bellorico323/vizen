@@ -31,4 +31,8 @@ type Api struct {
 	GetPackageController                *controllers.GetPackageHandler
 	ListPackagesController              *controllers.ListPackagesHandler
 	WithdrawPackageController           *controllers.WithdrawPackageHandler
+	CreateInviteController              *controllers.CreateInviteHandler
+	ValidateInviteController            *controllers.ValidateInviteHandler
+	RevokeInviteController              *controllers.RevokeInviteHandler
+	ListInvitesController               *controllers.ListInvitesHandler
 }

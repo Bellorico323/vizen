@@ -124,6 +124,39 @@ definitions:
       message:
         type: string
     type: object
+  api_controllers.CreateInviteRequest:
+    properties:
+      apartmentId:
+        type: string
+      condominiumId:
+        type: string
+      endsAt:
+        type: string
+      guestName:
+        minLength: 1
+        type: string
+      guestType:
+        enum:
+        - guest
+        - service
+        - delivery
+        type: string
+      startsAt:
+        type: string
+    required:
+    - apartmentId
+    - condominiumId
+    - endsAt
+    - guestName
+    - startsAt
+    type: object
+  api_controllers.CreateInviteResponse:
+    properties:
+      invite:
+        $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.Invite'
+      message:
+        type: string
+    type: object
   api_controllers.CreatePackageRequest:
     properties:
       apartmentId:
@@ -173,6 +206,32 @@ definitions:
         type: string
       withdrawnBy:
         type: string
+    type: object
+  api_controllers.ListInvitesResponse:
+    properties:
+      data:
+        items:
+          properties:
+            apartmentNumber:
+              type: string
+            block:
+              type: string
+            endsAt:
+              type: string
+            guestName:
+              type: string
+            guestType:
+              type: string
+            id:
+              type: string
+            revokedAt:
+              type: string
+            startsAt:
+              type: string
+            token:
+              type: string
+          type: object
+        type: array
     type: object
   api_controllers.MembershipResponse:
     properties:
@@ -319,6 +378,23 @@ definitions:
           $ref: '#/definitions/api_controllers.ResidenceResponse'
         type: array
     type: object
+  api_controllers.ValidateInviteRequest:
+    properties:
+      condominiumId:
+        type: string
+      token:
+        type: string
+    required:
+    - condominiumId
+    - token
+    type: object
+  api_controllers.ValidateInviteResponse:
+    properties:
+      invite:
+        $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow'
+      message:
+        type: string
+    type: object
   api_controllers.WithdrawPackageRequest:
     properties:
       condominiumId:
@@ -341,6 +417,62 @@ definitions:
           $ref: '#/definitions/validator.ErrorResponse'
         type: array
       message:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow:
+    properties:
+      apartment_id:
+        type: string
+      apartment_number:
+        type: string
+      block:
+        type: string
+      condominium_id:
+        type: string
+      created_at:
+        type: string
+      ends_at:
+        type: string
+      guest_name:
+        type: string
+      guest_type:
+        type: string
+      id:
+        type: string
+      issued_by:
+        type: string
+      resident_name:
+        type: string
+      revoked_at:
+        type: string
+      starts_at:
+        type: string
+      token:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_store_pgstore.Invite:
+    properties:
+      apartment_id:
+        type: string
+      condominium_id:
+        type: string
+      created_at:
+        type: string
+      ends_at:
+        type: string
+      guest_name:
+        type: string
+      guest_type:
+        type: string
+      id:
+        type: string
+      issued_by:
+        type: string
+      revoked_at:
+        type: string
+      starts_at:
+        type: string
+      token:
         type: string
     type: object
   usecases.PackageListItem:
@@ -839,6 +971,188 @@ paths:
       summary: Create Condominium
       tags:
       - Condominiums
+  /invites:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of invites. Residents see only their apartment's invites.
+        Staff can see all.
+      parameters:
+      - description: Condominium UUID
+        in: query
+        name: condominiumId
+        required: true
+        type: string
+      - description: Apartment UUID (Required for residents)
+        in: query
+        name: apartmentId
+        type: string
+      - description: If true, returns only future/active invites
+        in: query
+        name: onlyActive
+        type: boolean
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_controllers.ListInvitesResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List Invites
+      tags:
+      - Invites
+    post:
+      consumes:
+      - application/json
+      description: Generates a new access invite (QR Code Token). Only residents of
+        the specified apartment can create invites. Dates must be in ISO8601 format.
+      parameters:
+      - description: Invite Creation Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api_controllers.CreateInviteResponse'
+        "400":
+          description: Invalid Payload or Logic Error (e.g., End date before Start
+            date)
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission denied (User does not reside in this apartment)
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Conflict (Condominium or Apartment not found)
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation Failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Guest Invite
+      tags:
+      - Invites
+  /invites/{id}/revoke:
+    patch:
+      consumes:
+      - application/json
+      description: Cancels an existing invite. Only the user who created the invite
+        can revoke it.
+      parameters:
+      - description: Invite UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: Invite not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Revoke Invite
+      tags:
+      - Invites
+  /invites/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validates a visitor's QR code token. Checks if the token exists,
+        belongs to the condominium, is within the valid time window, and has not been
+        revoked. Records the entry in access logs upon success.
+      parameters:
+      - description: Token Validation Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.ValidateInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_controllers.ValidateInviteResponse'
+        "400":
+          description: Invalid Payload
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Business Rule Violation (Expired, Revoked, Not Started) or
+            Permission Denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: Invite/Token not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation Failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Validate Access Token (QR Code)
+      tags:
+      - Invites
   /packages:
     get:
       consumes:

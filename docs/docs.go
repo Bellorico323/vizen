@@ -710,6 +710,279 @@ const docTemplate = `{
                 }
             }
         },
+        "/invites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of invites. Residents see only their apartment's invites. Staff can see all.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "List Invites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID",
+                        "name": "condominiumId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Apartment UUID (Required for residents)",
+                        "name": "apartmentId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "If true, returns only future/active invites",
+                        "name": "onlyActive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 20)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ListInvitesResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generates a new access invite (QR Code Token). Only residents of the specified apartment can create invites. Dates must be in ISO8601 format.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Create Guest Invite",
+                "parameters": [
+                    {
+                        "description": "Invite Creation Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateInviteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateInviteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload or Logic Error (e.g., End date before Start date)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied (User does not reside in this apartment)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict (Condominium or Apartment not found)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/validate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Validates a visitor's QR code token. Checks if the token exists, belongs to the condominium, is within the valid time window, and has not been revoked. Records the entry in access logs upon success.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Validate Access Token (QR Code)",
+                "parameters": [
+                    {
+                        "description": "Token Validation Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ValidateInviteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ValidateInviteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Business Rule Violation (Expired, Revoked, Not Started) or Permission Denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Invite/Token not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/{id}/revoke": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Cancels an existing invite. Only the user who created the invite can revoke it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invites"
+                ],
+                "summary": "Revoke Invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Invite not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/packages": {
             "get": {
                 "security": [
@@ -1495,6 +1768,53 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.CreateInviteRequest": {
+            "type": "object",
+            "required": [
+                "apartmentId",
+                "condominiumId",
+                "endsAt",
+                "guestName",
+                "startsAt"
+            ],
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "guestName": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "guestType": {
+                    "type": "string",
+                    "enum": [
+                        "guest",
+                        "service",
+                        "delivery"
+                    ]
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.CreateInviteResponse": {
+            "type": "object",
+            "properties": {
+                "invite": {
+                    "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.Invite"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.CreatePackageRequest": {
             "type": "object",
             "required": [
@@ -1568,6 +1888,46 @@ const docTemplate = `{
                 },
                 "withdrawnBy": {
                     "type": "string"
+                }
+            }
+        },
+        "api_controllers.ListInvitesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "apartmentNumber": {
+                                "type": "string"
+                            },
+                            "block": {
+                                "type": "string"
+                            },
+                            "endsAt": {
+                                "type": "string"
+                            },
+                            "guestName": {
+                                "type": "string"
+                            },
+                            "guestType": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "revokedAt": {
+                                "type": "string"
+                            },
+                            "startsAt": {
+                                "type": "string"
+                            },
+                            "token": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -1789,6 +2149,32 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.ValidateInviteRequest": {
+            "type": "object",
+            "required": [
+                "condominiumId",
+                "token"
+            ],
+            "properties": {
+                "condominiumId": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.ValidateInviteResponse": {
+            "type": "object",
+            "properties": {
+                "invite": {
+                    "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.WithdrawPackageRequest": {
             "type": "object",
             "properties": {
@@ -1823,6 +2209,91 @@ const docTemplate = `{
                     }
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow": {
+            "type": "object",
+            "properties": {
+                "apartment_id": {
+                    "type": "string"
+                },
+                "apartment_number": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "condominium_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "guest_name": {
+                    "type": "string"
+                },
+                "guest_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "issued_by": {
+                    "type": "string"
+                },
+                "resident_name": {
+                    "type": "string"
+                },
+                "revoked_at": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.Invite": {
+            "type": "object",
+            "properties": {
+                "apartment_id": {
+                    "type": "string"
+                },
+                "condominium_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "guest_name": {
+                    "type": "string"
+                },
+                "guest_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "issued_by": {
+                    "type": "string"
+                },
+                "revoked_at": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }

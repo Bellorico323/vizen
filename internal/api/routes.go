@@ -105,6 +105,12 @@ func (api *Api) BindRoutes() {
 					r.Get("/", api.ListPackagesController.Handle)
 					r.Patch("/{id}/withdraw", api.WithdrawPackageController.Handle)
 				})
+				r.Route("/invites", func(r chi.Router) {
+					r.Post("/", api.CreateInviteController.Handle)
+					r.Post("/validate", api.ValidateInviteController.Handle)
+					r.Patch("/{id}/revoke", api.RevokeInviteController.Handle)
+					r.Get("/", api.ListInvitesController.Handle)
+				})
 			})
 		})
 	})
