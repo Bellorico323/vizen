@@ -11,12 +11,15 @@ import (
 )
 
 type Querier interface {
+	CheckBookingConflict(ctx context.Context, arg CheckBookingConflictParams) (bool, error)
 	CheckIsResident(ctx context.Context, arg CheckIsResidentParams) (bool, error)
 	CheckUserAccessToCondo(ctx context.Context, arg CheckUserAccessToCondoParams) (bool, error)
 	CreateAccessRequest(ctx context.Context, arg CreateAccessRequestParams) (uuid.UUID, error)
 	CreateAccountWithCredentials(ctx context.Context, arg CreateAccountWithCredentialsParams) error
 	CreateAnnouncement(ctx context.Context, arg CreateAnnouncementParams) (CreateAnnouncementRow, error)
 	CreateApartment(ctx context.Context, arg CreateApartmentParams) (uuid.UUID, error)
+	CreateBooking(ctx context.Context, arg CreateBookingParams) (Booking, error)
+	CreateCommonArea(ctx context.Context, arg CreateCommonAreaParams) (CommonArea, error)
 	CreateCondominium(ctx context.Context, arg CreateCondominiumParams) (uuid.UUID, error)
 	CreateCondominiumMember(ctx context.Context, arg CreateCondominiumMemberParams) error
 	CreateInvite(ctx context.Context, arg CreateInviteParams) (Invite, error)
@@ -30,6 +33,7 @@ type Querier interface {
 	GetAnnouncementById(ctx context.Context, id uuid.UUID) (Announcement, error)
 	GetApartmentById(ctx context.Context, id uuid.UUID) (Apartment, error)
 	GetApartmentsByUserId(ctx context.Context, arg GetApartmentsByUserIdParams) ([]GetApartmentsByUserIdRow, error)
+	GetCommonAreaIdForUpdate(ctx context.Context, id uuid.UUID) (CommonArea, error)
 	GetCondoAdminTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondoResidentsTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondominiumByAddress(ctx context.Context, address string) (Condominium, error)
@@ -46,6 +50,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 	GetUserDeviceTokens(ctx context.Context, userID uuid.UUID) ([]string, error)
 	GetUserMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserMembershipsRow, error)
+	ListCommonAreas(ctx context.Context, condominiumID uuid.UUID) ([]CommonArea, error)
 	ListCondominiunsByUserId(ctx context.Context, userID uuid.UUID) ([]ListCondominiunsByUserIdRow, error)
 	ListInvites(ctx context.Context, arg ListInvitesParams) ([]ListInvitesRow, error)
 	ListPackagesByApartment(ctx context.Context, arg ListPackagesByApartmentParams) ([]ListPackagesByApartmentRow, error)

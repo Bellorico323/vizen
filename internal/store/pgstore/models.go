@@ -80,6 +80,27 @@ type Bill struct {
 	UpdatedAt     *time.Time  `json:"updated_at"`
 }
 
+type Booking struct {
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	ApartmentID   uuid.UUID  `json:"apartment_id"`
+	UserID        uuid.UUID  `json:"user_id"`
+	CommonAreaID  uuid.UUID  `json:"common_area_id"`
+	StartsAt      time.Time  `json:"starts_at"`
+	EndsAt        time.Time  `json:"ends_at"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+	DeletedAt     *time.Time `json:"deleted_at"`
+}
+
+type CommonArea struct {
+	ID               uuid.UUID `json:"id"`
+	CondominiumID    uuid.UUID `json:"condominium_id"`
+	Name             string    `json:"name"`
+	Capacity         *int32    `json:"capacity"`
+	RequiresApproval bool      `json:"requires_approval"`
+}
+
 type Condominium struct {
 	ID        uuid.UUID  `json:"id"`
 	Name      string     `json:"name"`
