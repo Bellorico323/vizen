@@ -635,6 +635,112 @@ const docTemplate = `{
                 }
             }
         },
+        "/common-areas": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new bookable area (e.g., Gym, BBQ). Only Admin/Syndic can perform this action.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Common Areas"
+                ],
+                "summary": "Create Common Area",
+                "parameters": [
+                    {
+                        "description": "Common Area Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateCommonAreaRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateCommonAreaResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict (Name already exists)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/common_areas": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists all common areas available in the condominium. Open to all members.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Common Areas"
+                ],
+                "summary": "List Common Areas",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID",
+                        "name": "condominiumId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ListCommonAreasResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/condominiums": {
             "post": {
                 "security": [
@@ -1729,6 +1835,40 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.CreateCommonAreaRequest": {
+            "type": "object",
+            "required": [
+                "condominiumId",
+                "name"
+            ],
+            "properties": {
+                "capacity": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 3
+                },
+                "requiredApproval": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api_controllers.CreateCommonAreaResponse": {
+            "type": "object",
+            "properties": {
+                "commonArea": {
+                    "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.CreateCondominiumRequest": {
             "type": "object",
             "required": [
@@ -1888,6 +2028,17 @@ const docTemplate = `{
                 },
                 "withdrawnBy": {
                     "type": "string"
+                }
+            }
+        },
+        "api_controllers.ListCommonAreasResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea"
+                    }
                 }
             }
         },
@@ -2210,6 +2361,26 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "condominium_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "requires_approval": {
+                    "type": "boolean"
                 }
             }
         },

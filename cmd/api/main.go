@@ -129,6 +129,8 @@ func main() {
 	validateInvite := usecases.NewValidateInviteUseCase(pool, notiService)
 	revokeInvite := usecases.NewRevokeInviteUseCase(queries)
 	listInvites := usecases.NewListInvitesUseCase(queries)
+	createCommonArea := usecases.NewCreateCommonAreaUseCase(queries)
+	listCommonAreas := usecases.NewListCommonAreasUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -205,6 +207,12 @@ func main() {
 		},
 		ListInvitesController: &controllers.ListInvitesHandler{
 			ListInvites: listInvites,
+		},
+		CreateCommonAreaController: &controllers.CreateCommonAreaHandler{
+			CreateCommonArea: createCommonArea,
+		},
+		ListCommonAreasController: &controllers.ListCommonAreasHandler{
+			ListCommonAreas: listCommonAreas,
 		},
 	}
 

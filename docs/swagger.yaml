@@ -97,6 +97,29 @@ definitions:
       message:
         type: string
     type: object
+  api_controllers.CreateCommonAreaRequest:
+    properties:
+      capacity:
+        minimum: 1
+        type: integer
+      condominiumId:
+        type: string
+      name:
+        minLength: 3
+        type: string
+      requiredApproval:
+        type: boolean
+    required:
+    - condominiumId
+    - name
+    type: object
+  api_controllers.CreateCommonAreaResponse:
+    properties:
+      commonArea:
+        $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea'
+      message:
+        type: string
+    type: object
   api_controllers.CreateCondominiumRequest:
     properties:
       address:
@@ -206,6 +229,13 @@ definitions:
         type: string
       withdrawnBy:
         type: string
+    type: object
+  api_controllers.ListCommonAreasResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea'
+        type: array
     type: object
   api_controllers.ListInvitesResponse:
     properties:
@@ -418,6 +448,19 @@ definitions:
         type: array
       message:
         type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea:
+    properties:
+      capacity:
+        type: integer
+      condominium_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      requires_approval:
+        type: boolean
     type: object
   github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow:
     properties:
@@ -923,6 +966,75 @@ paths:
       summary: Refresh Access Token
       tags:
       - Auth
+  /common-areas:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new bookable area (e.g., Gym, BBQ). Only Admin/Syndic
+        can perform this action.
+      parameters:
+      - description: Common Area Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateCommonAreaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api_controllers.CreateCommonAreaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Conflict (Name already exists)
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Common Area
+      tags:
+      - Common Areas
+  /common_areas:
+    get:
+      consumes:
+      - application/json
+      description: Lists all common areas available in the condominium. Open to all
+        members.
+      parameters:
+      - description: Condominium UUID
+        in: query
+        name: condominiumId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_controllers.ListCommonAreasResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List Common Areas
+      tags:
+      - Common Areas
   /condominiums:
     post:
       consumes:

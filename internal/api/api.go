@@ -35,4 +35,6 @@ type Api struct {
 	ValidateInviteController            *controllers.ValidateInviteHandler
 	RevokeInviteController              *controllers.RevokeInviteHandler
 	ListInvitesController               *controllers.ListInvitesHandler
+	CreateCommonAreaController          *controllers.CreateCommonAreaHandler
+	ListCommonAreasController           *controllers.ListCommonAreasHandler
 }

@@ -111,6 +111,10 @@ func (api *Api) BindRoutes() {
 					r.Patch("/{id}/revoke", api.RevokeInviteController.Handle)
 					r.Get("/", api.ListInvitesController.Handle)
 				})
+				r.Route("/common_areas", func(r chi.Router) {
+					r.Post("/", api.CreateCommonAreaController.Handle)
+					r.Get("/", api.ListCommonAreasController.Handle)
+				})
 			})
 		})
 	})
