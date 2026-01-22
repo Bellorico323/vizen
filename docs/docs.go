@@ -635,6 +635,136 @@ const docTemplate = `{
                 }
             }
         },
+        "/bookings": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a reservation for a common area (e.g. Party Hall). Prevents double booking via locking.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Book Common Area",
+                "parameters": [
+                    {
+                        "description": "Booking Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateBookingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateBookingResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Time slot conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bookings/{id}/status": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows an Admin or Syndic to approve/deny a pending booking.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Approve or Reject Booking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Booking UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New Status (confirmed/denied)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.EditBookingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid Payload or ID",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission Denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Booking Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict (Booking not pending)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/common-areas": {
             "post": {
                 "security": [
@@ -1835,6 +1965,44 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.CreateBookingRequest": {
+            "type": "object",
+            "required": [
+                "apartmentId",
+                "commonAreaId",
+                "condominiumId",
+                "endsAt",
+                "startsAt"
+            ],
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "commonAreaId": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.CreateBookingResponse": {
+            "type": "object",
+            "properties": {
+                "booking": {
+                    "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.Booking"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api_controllers.CreateCommonAreaRequest": {
             "type": "object",
             "required": [
@@ -1984,6 +2152,21 @@ const docTemplate = `{
                 },
                 "packageId": {
                     "type": "string"
+                }
+            }
+        },
+        "api_controllers.EditBookingRequest": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "confirmed",
+                        "denied"
+                    ]
                 }
             }
         },
@@ -2360,6 +2543,44 @@ const docTemplate = `{
                     }
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.Booking": {
+            "type": "object",
+            "properties": {
+                "apartment_id": {
+                    "type": "string"
+                },
+                "common_area_id": {
+                    "type": "string"
+                },
+                "condominium_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

@@ -97,6 +97,32 @@ definitions:
       message:
         type: string
     type: object
+  api_controllers.CreateBookingRequest:
+    properties:
+      apartmentId:
+        type: string
+      commonAreaId:
+        type: string
+      condominiumId:
+        type: string
+      endsAt:
+        type: string
+      startsAt:
+        type: string
+    required:
+    - apartmentId
+    - commonAreaId
+    - condominiumId
+    - endsAt
+    - startsAt
+    type: object
+  api_controllers.CreateBookingResponse:
+    properties:
+      booking:
+        $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.Booking'
+      message:
+        type: string
+    type: object
   api_controllers.CreateCommonAreaRequest:
     properties:
       capacity:
@@ -200,6 +226,16 @@ definitions:
         type: string
       packageId:
         type: string
+    type: object
+  api_controllers.EditBookingRequest:
+    properties:
+      status:
+        enum:
+        - confirmed
+        - denied
+        type: string
+    required:
+    - status
     type: object
   api_controllers.GetPackageResponse:
     properties:
@@ -447,6 +483,31 @@ definitions:
           $ref: '#/definitions/validator.ErrorResponse'
         type: array
       message:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_store_pgstore.Booking:
+    properties:
+      apartment_id:
+        type: string
+      common_area_id:
+        type: string
+      condominium_id:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      ends_at:
+        type: string
+      id:
+        type: string
+      starts_at:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
         type: string
     type: object
   github_com_Bellorico323_vizen_internal_store_pgstore.CommonArea:
@@ -966,6 +1027,90 @@ paths:
       summary: Refresh Access Token
       tags:
       - Auth
+  /bookings:
+    post:
+      consumes:
+      - application/json
+      description: Create a reservation for a common area (e.g. Party Hall). Prevents
+        double booking via locking.
+      parameters:
+      - description: Booking Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api_controllers.CreateBookingResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Time slot conflict
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Book Common Area
+      tags:
+      - Bookings
+  /bookings/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Allows an Admin or Syndic to approve/deny a pending booking.
+      parameters:
+      - description: Booking UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New Status (confirmed/denied)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.EditBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid Payload or ID
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission Denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: Booking Not Found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Conflict (Booking not pending)
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Approve or Reject Booking
+      tags:
+      - Bookings
   /common-areas:
     post:
       consumes:

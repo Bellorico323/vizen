@@ -33,6 +33,7 @@ type Querier interface {
 	GetAnnouncementById(ctx context.Context, id uuid.UUID) (Announcement, error)
 	GetApartmentById(ctx context.Context, id uuid.UUID) (Apartment, error)
 	GetApartmentsByUserId(ctx context.Context, arg GetApartmentsByUserIdParams) ([]GetApartmentsByUserIdRow, error)
+	GetBookingById(ctx context.Context, id uuid.UUID) (GetBookingByIdRow, error)
 	GetCommonAreaIdForUpdate(ctx context.Context, id uuid.UUID) (CommonArea, error)
 	GetCondoAdminTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
 	GetCondoResidentsTokens(ctx context.Context, condominiumID uuid.UUID) ([]string, error)
@@ -61,6 +62,7 @@ type Querier interface {
 	SaveUserDevice(ctx context.Context, arg SaveUserDeviceParams) error
 	UpdateAccessRequestStatus(ctx context.Context, arg UpdateAccessRequestStatusParams) error
 	UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) error
+	UpdateBookingStatus(ctx context.Context, arg UpdateBookingStatusParams) (Booking, error)
 	UpdatePackageToWithdrawn(ctx context.Context, arg UpdatePackageToWithdrawnParams) error
 	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
 }

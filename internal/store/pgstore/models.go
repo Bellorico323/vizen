@@ -86,6 +86,7 @@ type Booking struct {
 	ApartmentID   uuid.UUID  `json:"apartment_id"`
 	UserID        uuid.UUID  `json:"user_id"`
 	CommonAreaID  uuid.UUID  `json:"common_area_id"`
+	Status        string     `json:"status"`
 	StartsAt      time.Time  `json:"starts_at"`
 	EndsAt        time.Time  `json:"ends_at"`
 	CreatedAt     time.Time  `json:"created_at"`

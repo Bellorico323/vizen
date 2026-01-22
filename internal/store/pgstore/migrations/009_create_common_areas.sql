@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   apartment_id   UUID NOT NULL REFERENCES apartments(id) ON DELETE CASCADE,
   user_id        UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   common_area_id UUID NOT NULL REFERENCES common_areas(id) ON DELETE CASCADE,
+  status         VARCHAR(100) NOT NULL DEFAULT 'confirmed' CHECK(status IN ('pending', 'confirmed', 'cancelled', 'denied')),
   starts_at      TIMESTAMPTZ NOT NULL,
   ends_at        TIMESTAMPTZ NOT NULL,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -24,7 +25,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 );
 
 CREATE INDEX idx_bookings_conflict ON bookings(common_area_id, starts_at, ends_at)
-WHERE deleted_at IS NULL;
+WHERE deleted_at IS NULL AND status IN ('confirmed', 'pending');
 
 ---- create above / drop below ----
 

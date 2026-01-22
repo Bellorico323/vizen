@@ -131,6 +131,8 @@ func main() {
 	listInvites := usecases.NewListInvitesUseCase(queries)
 	createCommonArea := usecases.NewCreateCommonAreaUseCase(queries)
 	listCommonAreas := usecases.NewListCommonAreasUseCase(queries)
+	createBooking := usecases.NewCreateBookingUseCase(pool, queries)
+	editBooking := usecases.NewEditBookingUseCase(queries, notiService)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -213,6 +215,12 @@ func main() {
 		},
 		ListCommonAreasController: &controllers.ListCommonAreasHandler{
 			ListCommonAreas: listCommonAreas,
+		},
+		CreateBookingController: &controllers.CreateBookingsHandler{
+			CreateBooking: createBooking,
+		},
+		EditBookingController: &controllers.EditBookingHandler{
+			EditBooking: editBooking,
 		},
 	}
 

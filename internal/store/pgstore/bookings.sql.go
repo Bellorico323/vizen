@@ -18,8 +18,9 @@ SELECT EXISTS (
   FROM bookings
   WHERE common_area_id = $1
   AND deleted_at IS NULL
+  AND status IN ('confirmed', 'pending')
   AND (
-    (starts_at < $3 AND ends_at > $2)
+    (starts_at < $2 AND ends_at > $3)
   )
 )
 `
@@ -43,6 +44,7 @@ INSERT INTO bookings (
   apartment_id,
   user_id,
   common_area_id,
+  status,
   starts_at,
   ends_at
 ) VALUES (
@@ -51,8 +53,9 @@ INSERT INTO bookings (
   $3,
   $4,
   $5,
-  $6
-) RETURNING id, condominium_id, apartment_id, user_id, common_area_id, starts_at, ends_at, created_at, updated_at, deleted_at
+  $6,
+  $7
+) RETURNING id, condominium_id, apartment_id, user_id, common_area_id, status, starts_at, ends_at, created_at, updated_at, deleted_at
 `
 
 type CreateBookingParams struct {
@@ -60,6 +63,7 @@ type CreateBookingParams struct {
 	ApartmentID   uuid.UUID `json:"apartment_id"`
 	UserID        uuid.UUID `json:"user_id"`
 	CommonAreaID  uuid.UUID `json:"common_area_id"`
+	Status        string    `json:"status"`
 	StartsAt      time.Time `json:"starts_at"`
 	EndsAt        time.Time `json:"ends_at"`
 }
@@ -70,6 +74,7 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (B
 		arg.ApartmentID,
 		arg.UserID,
 		arg.CommonAreaID,
+		arg.Status,
 		arg.StartsAt,
 		arg.EndsAt,
 	)
@@ -80,6 +85,84 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (B
 		&i.ApartmentID,
 		&i.UserID,
 		&i.CommonAreaID,
+		&i.Status,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getBookingById = `-- name: GetBookingById :one
+SELECT
+  b.id, b.condominium_id, b.apartment_id, b.user_id, b.common_area_id, b.status, b.starts_at, b.ends_at, b.created_at, b.updated_at, b.deleted_at,
+  ca.name AS common_area_name
+FROM bookings b
+JOIN common_areas ca ON ca.id = b.common_area_id
+WHERE b.id = $1
+`
+
+type GetBookingByIdRow struct {
+	ID             uuid.UUID  `json:"id"`
+	CondominiumID  uuid.UUID  `json:"condominium_id"`
+	ApartmentID    uuid.UUID  `json:"apartment_id"`
+	UserID         uuid.UUID  `json:"user_id"`
+	CommonAreaID   uuid.UUID  `json:"common_area_id"`
+	Status         string     `json:"status"`
+	StartsAt       time.Time  `json:"starts_at"`
+	EndsAt         time.Time  `json:"ends_at"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      *time.Time `json:"updated_at"`
+	DeletedAt      *time.Time `json:"deleted_at"`
+	CommonAreaName string     `json:"common_area_name"`
+}
+
+func (q *Queries) GetBookingById(ctx context.Context, id uuid.UUID) (GetBookingByIdRow, error) {
+	row := q.db.QueryRow(ctx, getBookingById, id)
+	var i GetBookingByIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.CondominiumID,
+		&i.ApartmentID,
+		&i.UserID,
+		&i.CommonAreaID,
+		&i.Status,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.CommonAreaName,
+	)
+	return i, err
+}
+
+const updateBookingStatus = `-- name: UpdateBookingStatus :one
+UPDATE bookings
+SET
+  status = $1,
+  updated_at = NOW()
+WHERE id = $2
+RETURNING id, condominium_id, apartment_id, user_id, common_area_id, status, starts_at, ends_at, created_at, updated_at, deleted_at
+`
+
+type UpdateBookingStatusParams struct {
+	Status string    `json:"status"`
+	ID     uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateBookingStatus(ctx context.Context, arg UpdateBookingStatusParams) (Booking, error) {
+	row := q.db.QueryRow(ctx, updateBookingStatus, arg.Status, arg.ID)
+	var i Booking
+	err := row.Scan(
+		&i.ID,
+		&i.CondominiumID,
+		&i.ApartmentID,
+		&i.UserID,
+		&i.CommonAreaID,
+		&i.Status,
 		&i.StartsAt,
 		&i.EndsAt,
 		&i.CreatedAt,

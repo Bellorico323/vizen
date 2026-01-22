@@ -48,7 +48,7 @@ func (uc *CreateCommonAreaUseCase) Exec(ctx context.Context, req CreateCommonAre
 		return pgstore.CommonArea{}, err
 	}
 
-	if userRole != "admin" && userRole != "syncid" {
+	if userRole != "admin" && userRole != "syndic" {
 		return pgstore.CommonArea{}, ErrNoPermission
 	}
 
