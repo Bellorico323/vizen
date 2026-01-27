@@ -237,6 +237,13 @@ definitions:
     required:
     - status
     type: object
+  api_controllers.GetAreaAvailabilityResponse:
+    properties:
+      bookings:
+        items:
+          $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetAreaAvailabilityRow'
+        type: array
+    type: object
   api_controllers.GetPackageResponse:
     properties:
       apartmentId:
@@ -265,6 +272,13 @@ definitions:
         type: string
       withdrawnBy:
         type: string
+    type: object
+  api_controllers.ListBookingsResponse:
+    properties:
+      bookings:
+        items:
+          $ref: '#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.ListBookingsRow'
+        type: array
     type: object
   api_controllers.ListCommonAreasResponse:
     properties:
@@ -523,6 +537,15 @@ definitions:
       requires_approval:
         type: boolean
     type: object
+  github_com_Bellorico323_vizen_internal_store_pgstore.GetAreaAvailabilityRow:
+    properties:
+      ends_at:
+        type: string
+      starts_at:
+        type: string
+      status:
+        type: string
+    type: object
   github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow:
     properties:
       apartment_id:
@@ -577,6 +600,39 @@ definitions:
       starts_at:
         type: string
       token:
+        type: string
+    type: object
+  github_com_Bellorico323_vizen_internal_store_pgstore.ListBookingsRow:
+    properties:
+      apartment_block:
+        type: string
+      apartment_id:
+        type: string
+      apartment_number:
+        type: string
+      common_area_id:
+        type: string
+      common_area_name:
+        type: string
+      condominium_id:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      ends_at:
+        type: string
+      id:
+        type: string
+      starts_at:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      user_name:
         type: string
     type: object
   usecases.PackageListItem:
@@ -1028,6 +1084,57 @@ paths:
       tags:
       - Auth
   /bookings:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of bookings. Admin can filter by user. Residents are
+        forced to see their own history unless they use public availability endpoint.
+      parameters:
+      - description: Condominium UUID
+        in: query
+        name: condominiumId
+        required: true
+        type: string
+      - description: Filter by User UUID (Optional)
+        in: query
+        name: userId
+        type: string
+      - description: Filter by Common Area UUID (Optional)
+        in: query
+        name: commonAreaId
+        type: string
+      - description: Start Date (ISO 8601 e.g. 2026-01-01T00:00:00Z)
+        in: query
+        name: from
+        type: string
+      - description: End Date (ISO 8601)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_controllers.ListBookingsResponse'
+        "400":
+          description: Invalid UUID or Date format
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List Bookings
+      tags:
+      - Bookings
     post:
       consumes:
       - application/json
@@ -1150,6 +1257,52 @@ paths:
       security:
       - BearerAuth: []
       summary: Create Common Area
+      tags:
+      - Common Areas
+  /common-areas/{id}/availability:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of occupied time slots for a specific common area
+        within a date range. Used to populate calendars.
+      parameters:
+      - description: Common Area UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Start Date (ISO 8601 e.g. 2026-01-01T00:00:00Z)
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: End Date (ISO 8601)
+        in: query
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_controllers.GetAreaAvailabilityResponse'
+        "400":
+          description: Invalid ID or Date format
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Area Availability
       tags:
       - Common Areas
   /common_areas:

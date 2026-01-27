@@ -634,6 +634,83 @@
             }
         },
         "/bookings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of bookings. Admin can filter by user. Residents are forced to see their own history unless they use public availability endpoint.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "List Bookings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID",
+                        "name": "condominiumId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by User UUID (Optional)",
+                        "name": "userId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by Common Area UUID (Optional)",
+                        "name": "commonAreaId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start Date (ISO 8601 e.g. 2026-01-01T00:00:00Z)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date (ISO 8601)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ListBookingsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID or Date format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -813,6 +890,75 @@
                     },
                     "409": {
                         "description": "Conflict (Name already exists)",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/common-areas/{id}/availability": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of occupied time slots for a specific common area within a date range. Used to populate calendars.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Common Areas"
+                ],
+                "summary": "Get Area Availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Common Area UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start Date (ISO 8601 e.g. 2026-01-01T00:00:00Z)",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date (ISO 8601)",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.GetAreaAvailabilityResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or Date format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
                         }
@@ -2168,6 +2314,17 @@
                 }
             }
         },
+        "api_controllers.GetAreaAvailabilityResponse": {
+            "type": "object",
+            "properties": {
+                "bookings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.GetAreaAvailabilityRow"
+                    }
+                }
+            }
+        },
         "api_controllers.GetPackageResponse": {
             "type": "object",
             "properties": {
@@ -2209,6 +2366,17 @@
                 },
                 "withdrawnBy": {
                     "type": "string"
+                }
+            }
+        },
+        "api_controllers.ListBookingsResponse": {
+            "type": "object",
+            "properties": {
+                "bookings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_store_pgstore.ListBookingsRow"
+                    }
                 }
             }
         },
@@ -2603,6 +2771,20 @@
                 }
             }
         },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.GetAreaAvailabilityRow": {
+            "type": "object",
+            "properties": {
+                "ends_at": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_Bellorico323_vizen_internal_store_pgstore.GetInviteByTokenRow": {
             "type": "object",
             "properties": {
@@ -2684,6 +2866,56 @@
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Bellorico323_vizen_internal_store_pgstore.ListBookingsRow": {
+            "type": "object",
+            "properties": {
+                "apartment_block": {
+                    "type": "string"
+                },
+                "apartment_id": {
+                    "type": "string"
+                },
+                "apartment_number": {
+                    "type": "string"
+                },
+                "common_area_id": {
+                    "type": "string"
+                },
+                "common_area_name": {
+                    "type": "string"
+                },
+                "condominium_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "ends_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }

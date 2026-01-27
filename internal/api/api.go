@@ -39,4 +39,6 @@ type Api struct {
 	ListCommonAreasController           *controllers.ListCommonAreasHandler
 	CreateBookingController             *controllers.CreateBookingsHandler
 	EditBookingController               *controllers.EditBookingHandler
+	ListBookingsController              *controllers.ListBookingsHandler
+	GetAreaAvailabilityController       *controllers.GetAreaAvailabilityHandler
 }

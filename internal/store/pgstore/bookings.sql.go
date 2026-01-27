@@ -95,6 +95,52 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (B
 	return i, err
 }
 
+const getAreaAvailability = `-- name: GetAreaAvailability :many
+SELECT
+  starts_at,
+  ends_at,
+  status
+FROM bookings
+WHERE common_area_id = $1
+  AND status IN ('confirmed', 'pending')
+  AND deleted_at IS NULL
+  AND starts_at >= $2
+  AND ends_at <= $3
+ORDER BY starts_at ASC
+`
+
+type GetAreaAvailabilityParams struct {
+	CommonAreaID uuid.UUID `json:"common_area_id"`
+	StartsAt     time.Time `json:"starts_at"`
+	EndsAt       time.Time `json:"ends_at"`
+}
+
+type GetAreaAvailabilityRow struct {
+	StartsAt time.Time `json:"starts_at"`
+	EndsAt   time.Time `json:"ends_at"`
+	Status   string    `json:"status"`
+}
+
+func (q *Queries) GetAreaAvailability(ctx context.Context, arg GetAreaAvailabilityParams) ([]GetAreaAvailabilityRow, error) {
+	rows, err := q.db.Query(ctx, getAreaAvailability, arg.CommonAreaID, arg.StartsAt, arg.EndsAt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAreaAvailabilityRow
+	for rows.Next() {
+		var i GetAreaAvailabilityRow
+		if err := rows.Scan(&i.StartsAt, &i.EndsAt, &i.Status); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getBookingById = `-- name: GetBookingById :one
 SELECT
   b.id, b.condominium_id, b.apartment_id, b.user_id, b.common_area_id, b.status, b.starts_at, b.ends_at, b.created_at, b.updated_at, b.deleted_at,
@@ -137,6 +183,93 @@ func (q *Queries) GetBookingById(ctx context.Context, id uuid.UUID) (GetBookingB
 		&i.CommonAreaName,
 	)
 	return i, err
+}
+
+const listBookings = `-- name: ListBookings :many
+SELECT
+  b.id, b.condominium_id, b.apartment_id, b.user_id, b.common_area_id, b.status, b.starts_at, b.ends_at, b.created_at, b.updated_at, b.deleted_at,
+  ca.name as common_area_name,
+  u.name as user_name,
+  a.number as apartment_number,
+  a.block as apartment_block
+FROM bookings b
+JOIN common_areas ca ON ca.id = b.common_area_id
+JOIN users u ON u.id = b.user_id
+JOIN apartments a ON a.id = b.apartment_id
+WHERE b.condominium_id = $1
+  AND ($2::uuid IS NULL OR b.user_id = $2::uuid)
+  AND ($3::uuid IS NULL OR b.common_area_id = $3)
+  AND ($4::timestamptz IS NULL OR b.starts_at >= $4)
+  AND ($5::timestamptz IS NULL OR b.ends_at <= $5)
+ORDER BY b.starts_at DESC
+`
+
+type ListBookingsParams struct {
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	UserID        *uuid.UUID `json:"user_id"`
+	CommonAreaID  *uuid.UUID `json:"common_area_id"`
+	FromDate      *time.Time `json:"from_date"`
+	ToDate        *time.Time `json:"to_date"`
+}
+
+type ListBookingsRow struct {
+	ID              uuid.UUID  `json:"id"`
+	CondominiumID   uuid.UUID  `json:"condominium_id"`
+	ApartmentID     uuid.UUID  `json:"apartment_id"`
+	UserID          uuid.UUID  `json:"user_id"`
+	CommonAreaID    uuid.UUID  `json:"common_area_id"`
+	Status          string     `json:"status"`
+	StartsAt        time.Time  `json:"starts_at"`
+	EndsAt          time.Time  `json:"ends_at"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       *time.Time `json:"updated_at"`
+	DeletedAt       *time.Time `json:"deleted_at"`
+	CommonAreaName  string     `json:"common_area_name"`
+	UserName        string     `json:"user_name"`
+	ApartmentNumber string     `json:"apartment_number"`
+	ApartmentBlock  *string    `json:"apartment_block"`
+}
+
+func (q *Queries) ListBookings(ctx context.Context, arg ListBookingsParams) ([]ListBookingsRow, error) {
+	rows, err := q.db.Query(ctx, listBookings,
+		arg.CondominiumID,
+		arg.UserID,
+		arg.CommonAreaID,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListBookingsRow
+	for rows.Next() {
+		var i ListBookingsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CondominiumID,
+			&i.ApartmentID,
+			&i.UserID,
+			&i.CommonAreaID,
+			&i.Status,
+			&i.StartsAt,
+			&i.EndsAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.CommonAreaName,
+			&i.UserName,
+			&i.ApartmentNumber,
+			&i.ApartmentBlock,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateBookingStatus = `-- name: UpdateBookingStatus :one

@@ -114,10 +114,12 @@ func (api *Api) BindRoutes() {
 				r.Route("/common_areas", func(r chi.Router) {
 					r.Post("/", api.CreateCommonAreaController.Handle)
 					r.Get("/", api.ListCommonAreasController.Handle)
+					r.Get("/{id}/availability", api.GetAreaAvailabilityController.Handle)
 				})
 				r.Route("/bookings", func(r chi.Router) {
 					r.Post("/", api.CreateBookingController.Handle)
 					r.Patch("/{id}/status", api.EditBookingController.Handle)
+					r.Get("/", api.ListBookingsController.Handle)
 				})
 			})
 		})
