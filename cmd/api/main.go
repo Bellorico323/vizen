@@ -135,6 +135,7 @@ func main() {
 	editBooking := usecases.NewEditBookingUseCase(queries, notiService)
 	listBookings := usecases.NewListBookingsUseCase(queries)
 	getAreaAvailability := usecases.NewGetAreaAvailabilityUseCase(queries)
+	createBill := usecases.NewCreateBillUseCase(queries)
 
 	api := api.Api{
 		Router:       chi.NewMux(),
@@ -229,6 +230,9 @@ func main() {
 		},
 		GetAreaAvailabilityController: &controllers.GetAreaAvailabilityHandler{
 			GetAreaAvailability: getAreaAvailability,
+		},
+		CreateBillController: &controllers.CreateBillHandler{
+			CreateBill: createBill,
 		},
 	}
 

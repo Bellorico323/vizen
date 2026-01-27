@@ -635,6 +635,81 @@ const docTemplate = `{
                 }
             }
         },
+        "/bills": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new financial bill (boleto/pix) for a specific apartment. Only Admins/Syndics.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Create Bill",
+                "parameters": [
+                    {
+                        "description": "Bill Information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateBillRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CreateBillResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Logic Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Apartment not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/bookings": {
             "get": {
                 "security": [
@@ -2110,6 +2185,51 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "api_controllers.CreateBillRequest": {
+            "type": "object",
+            "required": [
+                "apartmentId",
+                "billType",
+                "condominiumId",
+                "dueDate",
+                "valueInCents"
+            ],
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "billType": {
+                    "type": "string",
+                    "enum": [
+                        "rent",
+                        "condominium_fee",
+                        "water",
+                        "electricity",
+                        "gas",
+                        "fine"
+                    ]
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "digitableLine": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "pixCode": {
+                    "type": "string"
+                },
+                "valueInCents": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "api_controllers.CreateBillResponse": {
+            "type": "object"
         },
         "api_controllers.CreateBookingRequest": {
             "type": "object",

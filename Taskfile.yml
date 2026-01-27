@@ -26,7 +26,7 @@ tasks:
   migrate_drop:
     desc: Dropa as migrações do banco de dados
     cmds:
-      - go run ./cmd/terndotenv/main.go -drop
+      - go run ./cmd/terndotenv/main.go -drop {{.CLI_ARGS}}
 
   migrate_new:
     desc: Cria uma nova migration. Uso -> task migrate_new -- nome_da_migration

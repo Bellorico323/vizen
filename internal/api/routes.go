@@ -121,6 +121,9 @@ func (api *Api) BindRoutes() {
 					r.Patch("/{id}/status", api.EditBookingController.Handle)
 					r.Get("/", api.ListBookingsController.Handle)
 				})
+				r.Route("/bills", func(r chi.Router) {
+					r.Post("/", api.CreateBillController.Handle)
+				})
 			})
 		})
 	})

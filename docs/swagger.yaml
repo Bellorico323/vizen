@@ -97,6 +97,39 @@ definitions:
       message:
         type: string
     type: object
+  api_controllers.CreateBillRequest:
+    properties:
+      apartmentId:
+        type: string
+      billType:
+        enum:
+        - rent
+        - condominium_fee
+        - water
+        - electricity
+        - gas
+        - fine
+        type: string
+      condominiumId:
+        type: string
+      digitableLine:
+        type: string
+      dueDate:
+        type: string
+      pixCode:
+        type: string
+      valueInCents:
+        minimum: 0
+        type: integer
+    required:
+    - apartmentId
+    - billType
+    - condominiumId
+    - dueDate
+    - valueInCents
+    type: object
+  api_controllers.CreateBillResponse:
+    type: object
   api_controllers.CreateBookingRequest:
     properties:
       apartmentId:
@@ -1083,6 +1116,55 @@ paths:
       summary: Refresh Access Token
       tags:
       - Auth
+  /bills:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new financial bill (boleto/pix) for a specific apartment.
+        Only Admins/Syndics.
+      parameters:
+      - description: Bill Information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CreateBillRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api_controllers.CreateBillResponse'
+        "400":
+          description: Invalid JSON or Logic Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "404":
+          description: Apartment not found
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Bill
+      tags:
+      - Bills
   /bookings:
     get:
       consumes:

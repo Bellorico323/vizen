@@ -10,7 +10,8 @@ import (
 
 func main() {
 	envFile := flag.String("env", ".env", "Caminho para o arquivo .env")
-	shouldDrop := flag.Bool("drop", false, "Se verdadeiro, reverte todas as migrações (Drop All)")
+	shouldDrop := flag.Bool("drop", false, "Se verdadeiro, reverte todas as migrações")
+	dropDestination := flag.String("drop-destination", "0", "Quantidade de migrações que deve retornar")
 	flag.Parse()
 
 	fmt.Printf("Carregando variáveis de: %s\n", *envFile)
@@ -27,7 +28,7 @@ func main() {
 
 	if *shouldDrop {
 		fmt.Println("⚠️  MODO DROP ATIVADO: Revertendo todas as tabelas (destination 0)...")
-		cmdArgs = append(cmdArgs, "--destination", "0")
+		cmdArgs = append(cmdArgs, "--destination", *dropDestination)
 	} else {
 		fmt.Println("🚀 Rodando migrações (UP)...")
 	}

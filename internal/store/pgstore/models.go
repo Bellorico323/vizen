@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type AccessLog struct {
@@ -69,15 +68,18 @@ type Apartment struct {
 }
 
 type Bill struct {
-	ID            uuid.UUID   `json:"id"`
-	CondominiumID uuid.UUID   `json:"condominium_id"`
-	ApartmentID   uuid.UUID   `json:"apartment_id"`
-	BillType      string      `json:"bill_type"`
-	ValueInCents  int64       `json:"value_in_cents"`
-	DueDate       pgtype.Date `json:"due_date"`
-	PaidAt        *time.Time  `json:"paid_at"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     *time.Time  `json:"updated_at"`
+	ID            uuid.UUID  `json:"id"`
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	ApartmentID   uuid.UUID  `json:"apartment_id"`
+	BillType      string     `json:"bill_type"`
+	ValueInCents  int64      `json:"value_in_cents"`
+	DueDate       time.Time  `json:"due_date"`
+	PaidAt        *time.Time `json:"paid_at"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     *time.Time `json:"updated_at"`
+	DigitableLine *string    `json:"digitable_line"`
+	PixCode       *string    `json:"pix_code"`
+	Status        string     `json:"status"`
 }
 
 type Booking struct {
