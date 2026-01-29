@@ -772,6 +772,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/bills/{id}/cancel": {
+            "patch": {
+                "description": "Cancels a pending or overdue bill. Cannot cancel paid bills. Only for Admins/Syndics.// @Security\t   BearerAuth",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Cancel Bill",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bill UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Condominium id",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.CancelBillRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Logic Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Bill already paid or cancelled",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "type": "objct"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/bills/{id}/pay": {
             "patch": {
                 "security": [
@@ -2230,6 +2295,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api_controllers.CancelBillRequest": {
+            "type": "object",
+            "required": [
+                "condominiumId"
+            ],
+            "properties": {
+                "condominiumId": {
                     "type": "string"
                 }
             }

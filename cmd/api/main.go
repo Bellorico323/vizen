@@ -137,6 +137,7 @@ func main() {
 	getAreaAvailability := usecases.NewGetAreaAvailabilityUseCase(queries)
 	createBill := usecases.NewCreateBillUseCase(queries)
 	markBillAsPaid := usecases.NewMarkBillASPaidUseCase(queries)
+	cancelBill := usecases.NewCancelBillUseCase(queries)
 	listBills := usecases.NewListBillsUseCase(queries)
 
 	api := api.Api{
@@ -238,6 +239,9 @@ func main() {
 		},
 		MarkBillAsPaidController: &controllers.MarkBillAsPaidHandler{
 			MarkBillAsPaid: markBillAsPaid,
+		},
+		CancelBillController: &controllers.CancelBillHandler{
+			CancelBill: cancelBill,
 		},
 		ListBillsController: &controllers.ListBillsHandler{
 			ListBills: listBills,

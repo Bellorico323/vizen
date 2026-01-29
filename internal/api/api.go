@@ -43,5 +43,6 @@ type Api struct {
 	GetAreaAvailabilityController       *controllers.GetAreaAvailabilityHandler
 	CreateBillController                *controllers.CreateBillHandler
 	MarkBillAsPaidController            *controllers.MarkBillAsPaidHandler
+	CancelBillController                *controllers.CancelBillHandler
 	ListBillsController                 *controllers.ListBillsHandler
 }

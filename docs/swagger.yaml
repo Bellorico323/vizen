@@ -40,6 +40,13 @@ definitions:
       message:
         type: string
     type: object
+  api_controllers.CancelBillRequest:
+    properties:
+      condominiumId:
+        type: string
+    required:
+    - condominiumId
+    type: object
   api_controllers.CreateAccessRequestReq:
     properties:
       apartmentId:
@@ -1266,6 +1273,50 @@ paths:
       security:
       - BearerAuth: []
       summary: Create Bill
+      tags:
+      - Bills
+  /bills/{id}/cancel:
+    patch:
+      consumes:
+      - application/json
+      description: "Cancels a pending or overdue bill. Cannot cancel paid bills. Only
+        for Admins/Syndics.// @Security\t   BearerAuth"
+      parameters:
+      - description: Bill UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Condominium id
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.CancelBillRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid JSON or Logic Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Bill already paid or cancelled
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            type: objct
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      summary: Cancel Bill
       tags:
       - Bills
   /bills/{id}/pay:
