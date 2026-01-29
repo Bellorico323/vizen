@@ -123,6 +123,8 @@ func (api *Api) BindRoutes() {
 				})
 				r.Route("/bills", func(r chi.Router) {
 					r.Post("/", api.CreateBillController.Handle)
+					r.Patch("/{id}/pay", api.MarkBillAsPaidController.Handle)
+					r.Get("/", api.ListBillsController.Handle)
 				})
 			})
 		})

@@ -636,6 +636,68 @@ const docTemplate = `{
             }
         },
         "/bills": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List bills. Admins see all (or filter). Residents only see their own apartment's bills.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "List Bills",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Condominium UUID",
+                        "name": "condominiumId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Apartment UUID (Required for Residents)",
+                        "name": "apartmentId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (pending, paid, overdue, cancelled)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 10)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.ListBillsResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -699,6 +761,76 @@ const docTemplate = `{
                         "description": "Validation failed",
                         "schema": {
                             "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ValidationErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bills/{id}/pay": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Manually confirms payment for a bill. Only for Admins/Syndics.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Mark Bill as Paid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bill UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Condominium id",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.MarkBillAsPaidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid JSON or Logic Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Permission denied",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Bill already paid or cancelled",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "schema": {
+                            "type": "objct"
                         }
                     },
                     "500": {
@@ -2229,7 +2361,42 @@ const docTemplate = `{
             }
         },
         "api_controllers.CreateBillResponse": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "apartmentId": {
+                    "type": "string"
+                },
+                "billType": {
+                    "type": "string"
+                },
+                "condominiumId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "digitableLine": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "paidAt": {
+                    "type": "string"
+                },
+                "pixCode": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "valueInCents": {
+                    "type": "integer"
+                }
+            }
         },
         "api_controllers.CreateBookingRequest": {
             "type": "object",
@@ -2491,6 +2658,55 @@ const docTemplate = `{
                 }
             }
         },
+        "api_controllers.ListBillsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "apartmentId": {
+                                "type": "string"
+                            },
+                            "billType": {
+                                "type": "string"
+                            },
+                            "condominiumId": {
+                                "type": "string"
+                            },
+                            "createdAt": {
+                                "type": "string"
+                            },
+                            "digitableLine": {
+                                "type": "string"
+                            },
+                            "dueDate": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "paidAt": {
+                                "type": "string"
+                            },
+                            "pixCode": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "updatedAt": {
+                                "type": "string"
+                            },
+                            "valueInCents": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "api_controllers.ListBookingsResponse": {
             "type": "object",
             "properties": {
@@ -2550,6 +2766,17 @@ const docTemplate = `{
                             }
                         }
                     }
+                }
+            }
+        },
+        "api_controllers.MarkBillAsPaidRequest": {
+            "type": "object",
+            "required": [
+                "condominiumId"
+            ],
+            "properties": {
+                "condominiumId": {
+                    "type": "string"
                 }
             }
         },

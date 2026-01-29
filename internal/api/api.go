@@ -42,4 +42,6 @@ type Api struct {
 	ListBookingsController              *controllers.ListBookingsHandler
 	GetAreaAvailabilityController       *controllers.GetAreaAvailabilityHandler
 	CreateBillController                *controllers.CreateBillHandler
+	MarkBillAsPaidController            *controllers.MarkBillAsPaidHandler
+	ListBillsController                 *controllers.ListBillsHandler
 }

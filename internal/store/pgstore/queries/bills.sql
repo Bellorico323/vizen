@@ -46,11 +46,21 @@ WHERE condominium_id = $1
 ORDER BY due_date DESC
 LIMIT $2 OFFSET $3;
 
+-- name: ListBills :many
+SELECT
+  *
+FROM bills
+WHERE condominium_id = $1
+  AND (sqlc.narg('apartment_id')::uuid IS NULL OR apartment_id = sqlc.narg('apartment_id')::uuid)
+  AND (sqlc.narg('status')::varchar IS NULL OR status = sqlc.narg('status'))
+ORDER BY due_date ASC
+LIMIT $2 OFFSET $3;
+
 -- name: UpdateBillStatus :one
 UPDATE bills
 SET
   status = sqlc.arg('status'),
-  paid_at = CASE WHEN sqlc.arg('status') = 'paid' THEN NOW() ELSE NULL END,
+  paid_at = CASE WHEN sqlc.arg('status')::VARCHAR(50) = 'paid' THEN NOW() ELSE NULL END,
   updated_at = NOW()
-WHERE id = $1 AND condominium_id = $2
+WHERE id = sqlc.arg('id') AND condominium_id = sqlc.arg('condominium_id')
 RETURNING *;

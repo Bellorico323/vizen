@@ -107,6 +107,64 @@ func (q *Queries) GetBillById(ctx context.Context, arg GetBillByIdParams) (Bill,
 	return i, err
 }
 
+const listBills = `-- name: ListBills :many
+SELECT
+  id, condominium_id, apartment_id, bill_type, value_in_cents, due_date, paid_at, created_at, updated_at, digitable_line, pix_code, status
+FROM bills
+WHERE condominium_id = $1
+  AND ($4::uuid IS NULL OR apartment_id = $4::uuid)
+  AND ($5::varchar IS NULL OR status = $5)
+ORDER BY due_date ASC
+LIMIT $2 OFFSET $3
+`
+
+type ListBillsParams struct {
+	CondominiumID uuid.UUID  `json:"condominium_id"`
+	Limit         int32      `json:"limit"`
+	Offset        int32      `json:"offset"`
+	ApartmentID   *uuid.UUID `json:"apartment_id"`
+	Status        *string    `json:"status"`
+}
+
+func (q *Queries) ListBills(ctx context.Context, arg ListBillsParams) ([]Bill, error) {
+	rows, err := q.db.Query(ctx, listBills,
+		arg.CondominiumID,
+		arg.Limit,
+		arg.Offset,
+		arg.ApartmentID,
+		arg.Status,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Bill
+	for rows.Next() {
+		var i Bill
+		if err := rows.Scan(
+			&i.ID,
+			&i.CondominiumID,
+			&i.ApartmentID,
+			&i.BillType,
+			&i.ValueInCents,
+			&i.DueDate,
+			&i.PaidAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DigitableLine,
+			&i.PixCode,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listBillsByApartmentId = `-- name: ListBillsByApartmentId :many
 SELECT
   id, condominium_id, apartment_id, bill_type, value_in_cents, due_date, paid_at, created_at, updated_at, digitable_line, pix_code, status
@@ -213,21 +271,21 @@ func (q *Queries) ListBillsByCondominiumId(ctx context.Context, arg ListBillsByC
 const updateBillStatus = `-- name: UpdateBillStatus :one
 UPDATE bills
 SET
-  status = $3,
-  paid_at = CASE WHEN $3 = 'paid' THEN NOW() ELSE NULL END,
+  status = $1,
+  paid_at = CASE WHEN $1::VARCHAR(50) = 'paid' THEN NOW() ELSE NULL END,
   updated_at = NOW()
-WHERE id = $1 AND condominium_id = $2
+WHERE id = $2 AND condominium_id = $3
 RETURNING id, condominium_id, apartment_id, bill_type, value_in_cents, due_date, paid_at, created_at, updated_at, digitable_line, pix_code, status
 `
 
 type UpdateBillStatusParams struct {
+	Status        string    `json:"status"`
 	ID            uuid.UUID `json:"id"`
 	CondominiumID uuid.UUID `json:"condominium_id"`
-	Status        string    `json:"status"`
 }
 
 func (q *Queries) UpdateBillStatus(ctx context.Context, arg UpdateBillStatusParams) (Bill, error) {
-	row := q.db.QueryRow(ctx, updateBillStatus, arg.ID, arg.CondominiumID, arg.Status)
+	row := q.db.QueryRow(ctx, updateBillStatus, arg.Status, arg.ID, arg.CondominiumID)
 	var i Bill
 	err := row.Scan(
 		&i.ID,

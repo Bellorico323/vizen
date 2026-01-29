@@ -54,6 +54,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 	GetUserDeviceTokens(ctx context.Context, userID uuid.UUID) ([]string, error)
 	GetUserMemberships(ctx context.Context, userID uuid.UUID) ([]GetUserMembershipsRow, error)
+	ListBills(ctx context.Context, arg ListBillsParams) ([]Bill, error)
 	ListBillsByApartmentId(ctx context.Context, arg ListBillsByApartmentIdParams) ([]Bill, error)
 	ListBillsByCondominiumId(ctx context.Context, arg ListBillsByCondominiumIdParams) ([]Bill, error)
 	ListBookings(ctx context.Context, arg ListBookingsParams) ([]ListBookingsRow, error)

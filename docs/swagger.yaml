@@ -129,6 +129,29 @@ definitions:
     - valueInCents
     type: object
   api_controllers.CreateBillResponse:
+    properties:
+      apartmentId:
+        type: string
+      billType:
+        type: string
+      condominiumId:
+        type: string
+      createdAt:
+        type: string
+      digitableLine:
+        type: string
+      dueDate:
+        type: string
+      id:
+        type: string
+      paidAt:
+        type: string
+      pixCode:
+        type: string
+      status:
+        type: string
+      valueInCents:
+        type: integer
     type: object
   api_controllers.CreateBookingRequest:
     properties:
@@ -306,6 +329,38 @@ definitions:
       withdrawnBy:
         type: string
     type: object
+  api_controllers.ListBillsResponse:
+    properties:
+      data:
+        items:
+          properties:
+            apartmentId:
+              type: string
+            billType:
+              type: string
+            condominiumId:
+              type: string
+            createdAt:
+              type: string
+            digitableLine:
+              type: string
+            dueDate:
+              type: string
+            id:
+              type: string
+            paidAt:
+              type: string
+            pixCode:
+              type: string
+            status:
+              type: string
+            updatedAt:
+              type: string
+            valueInCents:
+              type: integer
+          type: object
+        type: array
+    type: object
   api_controllers.ListBookingsResponse:
     properties:
       bookings:
@@ -345,6 +400,13 @@ definitions:
               type: string
           type: object
         type: array
+    type: object
+  api_controllers.MarkBillAsPaidRequest:
+    properties:
+      condominiumId:
+        type: string
+    required:
+    - condominiumId
     type: object
   api_controllers.MembershipResponse:
     properties:
@@ -1117,6 +1179,47 @@ paths:
       tags:
       - Auth
   /bills:
+    get:
+      description: List bills. Admins see all (or filter). Residents only see their
+        own apartment's bills.
+      parameters:
+      - description: Condominium UUID
+        in: query
+        name: condominiumId
+        required: true
+        type: string
+      - description: Apartment UUID (Required for Residents)
+        in: query
+        name: apartmentId
+        type: string
+      - description: Filter by status (pending, paid, overdue, cancelled)
+        in: query
+        name: status
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 10)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_controllers.ListBillsResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: List Bills
+      tags:
+      - Bills
     post:
       consumes:
       - application/json
@@ -1163,6 +1266,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Create Bill
+      tags:
+      - Bills
+  /bills/{id}/pay:
+    patch:
+      consumes:
+      - application/json
+      description: Manually confirms payment for a bill. Only for Admins/Syndics.
+      parameters:
+      - description: Bill UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Condominium id
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api_controllers.MarkBillAsPaidRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid JSON or Logic Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "403":
+          description: Permission denied
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "409":
+          description: Bill already paid or cancelled
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "422":
+          description: Validation failed
+          schema:
+            type: objct
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark Bill as Paid
       tags:
       - Bills
   /bookings:
