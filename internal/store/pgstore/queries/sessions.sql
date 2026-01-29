@@ -24,3 +24,7 @@ SET token = $1,
     expires_at = $2,
     updated_at = NOW()
 WHERE id = $3;
+
+-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE token = $1;

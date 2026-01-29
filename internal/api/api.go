@@ -13,6 +13,7 @@ type Api struct {
 	// Controllers
 	SignupController                    *controllers.SignupHandler
 	SigninController                    *controllers.SigninHandler
+	LogoutController                    *controllers.LogoutHandler
 	UsersController                     *controllers.UsersController
 	RefreshTokenController              *controllers.RefreshTokenHandler
 	CreateCondominiumController         *controllers.CreateCondominiumHandler

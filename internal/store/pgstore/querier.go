@@ -29,6 +29,7 @@ type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error)
 	DeleteAnnouncement(ctx context.Context, arg DeleteAnnouncementParams) error
+	DeleteSession(ctx context.Context, token string) error
 	GetAccessRequestById(ctx context.Context, id uuid.UUID) (AccessRequest, error)
 	GetAccountByUserId(ctx context.Context, userID uuid.UUID) (Account, error)
 	GetAnnouncementById(ctx context.Context, id uuid.UUID) (Announcement, error)

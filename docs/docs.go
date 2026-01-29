@@ -584,6 +584,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/logout": {
+            "post": {
+                "description": "Revokes the user session.\nIt checks for the 'refresh_token' in HttpOnly Cookies (Web) OR in the JSON Body (Mobile).\nIf found, the session is deleted from the database and the cookie is cleared.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout User",
+                "parameters": [
+                    {
+                        "description": "Refresh Token (Optional if using Cookies)",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/api_controllers.LogoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content - Successfully logged out"
+                    },
+                    "400": {
+                        "description": "Refresh token not found in Cookie or Body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/refresh": {
             "post": {
                 "description": "Generates a new access token using a valid refresh token from Cookie (Web) or Body (Mobile)",
@@ -2842,6 +2884,14 @@ const docTemplate = `{
                             }
                         }
                     }
+                }
+            }
+        },
+        "api_controllers.LogoutRequest": {
+            "type": "object",
+            "properties": {
+                "refreshToken": {
+                    "type": "string"
                 }
             }
         },

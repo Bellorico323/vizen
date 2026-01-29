@@ -107,6 +107,7 @@ func main() {
 
 	signupWithCredentials := usecases.NewSignupWithCredentialsUseCase(pool)
 	signinWithCredentials := usecases.NewSigninUserWithCredentials(queries, tokenService)
+	logout := usecases.NewLogoutUseCase(queries)
 	refreshToken := usecases.NewRefreshTokenUseCase(queries, tokenService)
 	getUserProfile := usecases.NewGetUserProfileUseCase(queries)
 	listUserCondominiums := usecases.NewListUserCondominiumsUseCase(queries)
@@ -149,6 +150,9 @@ func main() {
 		},
 		SigninController: &controllers.SigninHandler{
 			SigninUseCase: signinWithCredentials,
+		},
+		LogoutController: &controllers.LogoutHandler{
+			Logout: logout,
 		},
 		RefreshTokenController: &controllers.RefreshTokenHandler{
 			RefreshTokenUseCase: refreshToken,

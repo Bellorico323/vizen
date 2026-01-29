@@ -76,6 +76,7 @@ func (api *Api) BindRoutes() {
 
 			r.Route("/auth", func(r chi.Router) {
 				r.Post("/refresh", api.RefreshTokenController.Handle)
+				r.Post("/logout", api.LogoutController.Handle)
 			})
 
 			// Needs auth

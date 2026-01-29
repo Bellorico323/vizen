@@ -408,6 +408,11 @@ definitions:
           type: object
         type: array
     type: object
+  api_controllers.LogoutRequest:
+    properties:
+      refreshToken:
+        type: string
+    type: object
   api_controllers.MarkBillAsPaidRequest:
     properties:
       condominiumId:
@@ -1151,6 +1156,36 @@ paths:
       summary: Create Apartment
       tags:
       - Apartments
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Revokes the user session.
+        It checks for the 'refresh_token' in HttpOnly Cookies (Web) OR in the JSON Body (Mobile).
+        If found, the session is deleted from the database and the cookie is cleared.
+      parameters:
+      - description: Refresh Token (Optional if using Cookies)
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/api_controllers.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content - Successfully logged out
+        "400":
+          description: Refresh token not found in Cookie or Body
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_Bellorico323_vizen_internal_api_common.ErrResponse'
+      summary: Logout User
+      tags:
+      - Auth
   /auth/refresh:
     post:
       consumes:
